@@ -1,0 +1,60 @@
+@startuml sequence
+
+    skinparam actorStyle awesome
+    actor "Joueur" as J
+    actor "Maitre de jeu" as MJ
+
+    == Création de personnage ==
+    J -> J : Créer un personnage
+    J -> MJ : Propose le personnage
+    MJ -> MJ : Consulte le personnage
+    MJ -> MJ : Associe le personnage à un univers
+    MJ -> J : Accepte/rejette le personnage
+
+newpage
+
+    actor "Joueur" as J
+    actor "Maitre de jeu" as MJ
+
+    == Publication d'épisode par le Maitre du jeu==
+    MJ -> MJ : Rédige un épisode
+    MJ --> MJ : Enregistre l'épisode en brouillon
+    MJ -> J : Publie l'épisode
+    J -> J : Consulte l'épisode publié
+
+    == Publication d'épisode par le Joueur ==
+    J -> J : Rédige un épisode
+    J --> J : Enregistre l'épisode en brouillon
+    J --> J : Reprend la redaction
+    J -> MJ : Soumet l'épisode au MJ
+    MJ -> MJ : Consulte l'épisode soumis
+    MJ -> J : Accepte/rejette l'épisode
+    J -> J : Consulte l'épisode publié
+    J --> J : Peut révéler l'épisode si il etait secret
+
+newpage
+
+    actor "Joueur" as J
+    actor "Systeme" as S
+    actor "Maitre de jeu" as MJ
+    
+    == Transfert de MJ ==
+    J -> S : Demande le transfert de MJ
+    S -> S : Verifie les conditions de transfert
+    S -> MJ : Notifie la demande de transfert
+    MJ -> J : Accepte/rejette le transfert de MJ
+
+newpage
+
+    actor "Joueur" as J
+    actor "Maitre de jeu" as MJ
+
+    == Création de partie ==
+    MJ -> MJ : Rédige une proposition de partie
+    MJ -> J : Propose la partie
+    MJ -> MJ : Ajoute les personnages des joueurs à la partie
+
+    MJ --> MJ : Supprime la proposition de partie
+
+
+@enduml

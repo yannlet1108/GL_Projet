@@ -1,0 +1,90 @@
+@startuml cas_utilisation
+skinparam actorStyle awesome
+skinparam usecasePadding 8
+
+actor "Joueur" as J
+actor "Maitre de jeu" as MJ
+actor "Systeme" as S
+MJ --|> J
+
+rectangle "Personnages" as P {
+    usecase "Créer le personnage"
+    usecase "Proposer un à un MJ"
+    usecase "Accepter/rejeter un personnage"
+    usecase "Modifier la profession"
+    usecase "Consulter les informations d'un personnage"
+    usecase "Associer un personnage à un univers"
+    usecase "Transferer la propriété à un autre joueur"
+    usecase "Demander un changement de MJ"
+    usecase "Rejeter un changement de MJ"
+    usecase "Accepter/rejeter un changement de MJ"
+}
+J -- (Créer le personnage)
+J -- (Proposer un à un MJ)
+MJ -- (Accepter/rejeter un personnage)
+J -- (Modifier la profession)
+J -- (Consulter les informations d'un personnage)
+MJ -- (Associer un personnage à un univers)
+J -- (Transferer la propriété à un autre joueur)
+J -- (Demander un changement de MJ)
+S -- (Rejeter un changement de MJ)
+MJ -- (Accepter/rejeter un changement de MJ)
+
+newpage
+
+actor "Joueur" as J
+actor "Maitre de jeu" as MJ
+MJ --|> J
+
+rectangle "Episodes et Biographie" as E {
+    usecase "Créer un episode"
+    usecase "Lier un episode à une aventure"
+    usecase "Sauvegarder un episode en brouillon"
+    usecase "Modifier un episode en brouillon"
+    usecase "Demander la validation d'un episode"
+    usecase "Valider/rejeter un episode"
+    usecase "Supprimer un episode en brouillon"
+    usecase "Consulter la biographie d'un personnage"
+    usecase "Reveler un épisode secret"
+}
+J -- (Créer un episode)
+J -- (Lier un episode à une aventure)
+J -- (Sauvegarder un episode en brouillon)
+J -- (Modifier un episode en brouillon)
+J -- (Demander la validation d'un episode)
+MJ -- (Valider/rejeter un episode)
+J -- (Supprimer un episode en brouillon)
+J -- (Consulter la biographie d'un personnage)
+J -- (Reveler un épisode secret)
+
+newpage
+
+actor "Joueur" as J
+actor "Maitre de jeu" as MJ
+MJ --|> J
+
+rectangle "Parties et Aventures" as A {
+    usecase "Proposer une partie"
+    usecase "Supprimer une proposition"
+    usecase "Accepter/rejeter une partie"
+    usecase "Consulter les parties proposées"
+    usecase "Ajouter/retirer un personnage participant"
+    usecase "Consulter les personnages d'une partie"
+    usecase "Cloturer une partie"
+    usecase "Créer un univers"
+}
+J -- (Proposer une partie)
+J -- (Supprimer une proposition)
+J -- (Accepter/rejeter une partie)
+J -- (Consulter les parties proposées)
+MJ -- (Ajouter/retirer un personnage participant)
+J -- (Consulter les personnages d'une partie)
+MJ -- (Cloturer une partie)
+MJ -- (Créer un univers)
+
+usecase "Authentification/connexion"
+J -- (Authentification/connexion)
+
+@enduml
+
+
