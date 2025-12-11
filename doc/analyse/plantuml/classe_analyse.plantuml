@@ -1,0 +1,32 @@
+@startuml classe_analyse
+
+' Classes
+class Utilisateur
+class Personnage
+class Biographie
+class Episode
+class Paragraphe
+class Univers
+class Partie
+class Aventure
+
+' Relations
+Personnage "1" --> "1" Utilisateur : propriétaire
+Personnage "1" --> "1" Utilisateur : a pour MJ
+
+Personnage "1" --> "1" Univers
+
+Personnage "1" o-- "1" Biographie
+Biographie "1" o-- "1..*" Episode
+Episode "1" o-- "1..*" Paragraphe
+
+Episode "0..*" --> "0..1" Aventure
+
+Partie "1" --> "1" Utilisateur : MJ
+Partie "0..*" --> "0..*" Utilisateur : joueurs
+Partie "0..*" --> "0..*" Personnage : participants
+Partie "1" --> "1" Univers
+
+Partie "0..*" --> "0..1" Aventure : devient
+
+@enduml

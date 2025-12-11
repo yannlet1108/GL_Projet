@@ -1,42 +1,47 @@
 @startuml sequence
 
     skinparam actorStyle awesome
-    actor "Joueur" as J
-    actor "Maitre de jeu" as MJ
+    
+    actor "Joueur" as J order 1
+    participant "Système" as S order 2
+    actor "Maitre de jeu" as MJ order 3
 
     == Création de personnage ==
-    J -> J : Créer un personnage
-    J -> MJ : Propose le personnage
-    MJ -> MJ : Consulte le personnage
-    MJ -> MJ : Associe le personnage à un univers
-    MJ -> J : Accepte/rejette le personnage
+    J --> S : Saisit les informations du personnage
+    S --> J : Confirme la création
+    J -> S : Propose le personnage au MJ
+    S -> MJ : Notifie la proposition de personnage
+    MJ --> S : Consulte les informations du personnage
+    MJ -> S : Accepte/rejette le personnage
+    S --> J : Notifie la décision du MJ
 
 newpage
 
-    actor "Joueur" as J
-    actor "Maitre de jeu" as MJ
-
     == Publication d'épisode par le Maitre du jeu==
-    MJ -> MJ : Rédige un épisode
-    MJ --> MJ : Enregistre l'épisode en brouillon
+    MJ -> S : Créé un épisode brouillon
+    MJ --> S : Modifie/sauvegarde le brouillon
+    MJ -> S : Soumet l'épisode au joueur
+    S -> J : Notifie la soumission d'épisode
+    J -> S : Consulte l'épisode
+    J -> S : Accepte/rejette l'épisode
+    S --> MJ : Notifie la décision du joueur
     MJ -> J : Publie l'épisode
     J -> J : Consulte l'épisode publié
 
     == Publication d'épisode par le Joueur ==
-    J -> J : Rédige un épisode
-    J --> J : Enregistre l'épisode en brouillon
-    J --> J : Reprend la redaction
-    J -> MJ : Soumet l'épisode au MJ
-    MJ -> MJ : Consulte l'épisode soumis
-    MJ -> J : Accepte/rejette l'épisode
-    J -> J : Consulte l'épisode publié
-    J --> J : Peut révéler l'épisode si il etait secret
+    J -> S : Créé un épisode brouillon
+    J --> S : Modifie/sauvegarde le brouillon
+    J -> S : Soumet l'épisode au MJ
+    S -> MJ : Notifie la soumission d'épisode
+    MJ -> S : Consulte l'épisode
+    MJ -> S : Accepte/rejette l'épisode
+    S --> J : Notifie la décision du MJ
+    J --> S : Consulte l'épisode publié
+
+
+
 
 newpage
-
-    actor "Joueur" as J
-    actor "Systeme" as S
-    actor "Maitre de jeu" as MJ
     
     == Transfert de MJ ==
     J -> S : Demande le transfert de MJ

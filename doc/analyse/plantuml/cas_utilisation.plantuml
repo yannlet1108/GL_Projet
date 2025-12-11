@@ -4,7 +4,6 @@ skinparam usecasePadding 8
 
 actor "Joueur" as J
 actor "Maitre de jeu" as MJ
-actor "Systeme" as S
 MJ --|> J
 
 rectangle "Personnages" as P {
@@ -13,22 +12,21 @@ rectangle "Personnages" as P {
     usecase "Accepter/rejeter un personnage"
     usecase "Modifier la profession"
     usecase "Consulter les informations d'un personnage"
-    usecase "Associer un personnage à un univers"
     usecase "Transferer la propriété à un autre joueur"
     usecase "Demander un changement de MJ"
-    usecase "Rejeter un changement de MJ"
     usecase "Accepter/rejeter un changement de MJ"
+    usecase "Consulter ses personnages"
 }
 J -- (Créer le personnage)
 J -- (Proposer un à un MJ)
 MJ -- (Accepter/rejeter un personnage)
 J -- (Modifier la profession)
 J -- (Consulter les informations d'un personnage)
-MJ -- (Associer un personnage à un univers)
+MJ -- (Consulter les informations d'un personnage)
 J -- (Transferer la propriété à un autre joueur)
 J -- (Demander un changement de MJ)
-S -- (Rejeter un changement de MJ)
 MJ -- (Accepter/rejeter un changement de MJ)
+J -- (Consulter ses personnages)
 
 newpage
 
@@ -42,20 +40,22 @@ rectangle "Episodes et Biographie" as E {
     usecase "Sauvegarder un episode en brouillon"
     usecase "Modifier un episode en brouillon"
     usecase "Demander la validation d'un episode"
-    usecase "Valider/rejeter un episode"
+    usecase "Valider un episode"
     usecase "Supprimer un episode en brouillon"
     usecase "Consulter la biographie d'un personnage"
-    usecase "Reveler un épisode secret"
+    usecase "Reveler un paragraphe secret"
 }
 J -- (Créer un episode)
 J -- (Lier un episode à une aventure)
 J -- (Sauvegarder un episode en brouillon)
 J -- (Modifier un episode en brouillon)
 J -- (Demander la validation d'un episode)
-MJ -- (Valider/rejeter un episode)
+MJ -- (Demander la validation d'un episode)
+MJ -- (Valider un episode)
+J -- (Valider un episode)
 J -- (Supprimer un episode en brouillon)
 J -- (Consulter la biographie d'un personnage)
-J -- (Reveler un épisode secret)
+J -- (Reveler un paragraphe secret)
 
 newpage
 
@@ -66,23 +66,25 @@ MJ --|> J
 rectangle "Parties et Aventures" as A {
     usecase "Proposer une partie"
     usecase "Supprimer une proposition"
-    usecase "Accepter/rejeter une partie"
     usecase "Consulter les parties proposées"
     usecase "Ajouter/retirer un personnage participant"
     usecase "Consulter les personnages d'une partie"
     usecase "Cloturer une partie"
     usecase "Créer un univers"
+    usecase "Consulter une aventure passée"
 }
 J -- (Proposer une partie)
 J -- (Supprimer une proposition)
-J -- (Accepter/rejeter une partie)
 J -- (Consulter les parties proposées)
 MJ -- (Ajouter/retirer un personnage participant)
 J -- (Consulter les personnages d'une partie)
 MJ -- (Cloturer une partie)
 MJ -- (Créer un univers)
+J -- (Consulter une aventure passée)
 
-usecase "Authentification/connexion"
+rectangle "Système" as S {
+    usecase "Authentification/connexion"
+}
 J -- (Authentification/connexion)
 
 @enduml
