@@ -24,9 +24,10 @@ newpage
     S -> J : Notifie la soumission d'épisode
     J -> S : Consulte l'épisode
     J -> S : Accepte/rejette l'épisode
-    S --> MJ : Notifie la décision du joueur
-    MJ -> J : Publie l'épisode
-    J -> J : Consulte l'épisode publié
+    S --> MJ : Notifie la décision du Joueur
+    S -> S : Publication de l'épisode si accepté
+    MJ --> S : Consulte l'épisode publié
+    J --> S : Consulte l'épisode publié
 
     == Publication d'épisode par le Joueur ==
     J -> S : Créé un épisode brouillon
@@ -36,10 +37,9 @@ newpage
     MJ -> S : Consulte l'épisode
     MJ -> S : Accepte/rejette l'épisode
     S --> J : Notifie la décision du MJ
+    S -> S : Publication de l'épisode si accepté
     J --> S : Consulte l'épisode publié
-
-
-
+    MJ --> S : Consulte l'épisode publié
 
 newpage
     
@@ -47,19 +47,23 @@ newpage
     J -> S : Demande le transfert de MJ
     S -> S : Verifie les conditions de transfert
     S -> MJ : Notifie la demande de transfert
-    MJ -> J : Accepte/rejette le transfert de MJ
+    MJ -> S : Accepte/rejette le transfert de MJ
+    S --> J : Notifie la décision du MJ
+    S -> S : Effectue le transfert si accepté
 
 newpage
 
-    actor "Joueur" as J
-    actor "Maitre de jeu" as MJ
-
     == Création de partie ==
-    MJ -> MJ : Rédige une proposition de partie
-    MJ -> J : Propose la partie
-    MJ -> MJ : Ajoute les personnages des joueurs à la partie
+    MJ -> S : Rédige une proposition de partie
+    S -> J : Rend la proposition visible aux autres joueurs
+    J --> S : Consulte la proposition de partie
+    MJ -> S : Ajoute/retire des personnages participants
+    MJ -> S : Cloture de la partie (saisie du résumé)
+    S -> J : Transformation en aventure et publication
+    J --> S : Consulte l'aventure publiée
 
-    MJ --> MJ : Supprime la proposition de partie
-
+    == Suppression de proposition ==
+    MJ -> S : Supprime la proposition de partie
+    S --> MJ : Confirme la suppression
 
 @enduml
