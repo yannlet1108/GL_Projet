@@ -12,44 +12,41 @@
     J -> S : Propose le personnage au MJ
     S -> MJ : Notifie la proposition de personnage
     MJ --> S : Consulte les informations du personnage
-    MJ -> S : Accepte/rejette le personnage
+    MJ -> S : Accepte/refuse le personnage
     S --> J : Notifie la décision du MJ
 
 newpage
 
     == Publication d'épisode par le Maitre du jeu==
-    MJ -> S : Créé un épisode brouillon
+    MJ -> S : Crée un épisode brouillon
     MJ --> S : Modifie/sauvegarde le brouillon
     MJ -> S : Soumet l'épisode au joueur
     S -> J : Notifie la soumission d'épisode
     J -> S : Consulte l'épisode
-    J -> S : Accepte/rejette l'épisode
+    J -> S : Valide ou refuse l'épisode
     S --> MJ : Notifie la décision du Joueur
     S -> S : Publication de l'épisode si accepté
-    MJ --> S : Consulte l'épisode publié
-    J --> S : Consulte l'épisode publié
+    note over J,MJ :  Les utilisateurs peuvent consulter l'épisode
 
     == Publication d'épisode par le Joueur ==
-    J -> S : Créé un épisode brouillon
+    J -> S : Crée un épisode brouillon
     J --> S : Modifie/sauvegarde le brouillon
     J -> S : Soumet l'épisode au MJ
     S -> MJ : Notifie la soumission d'épisode
     MJ -> S : Consulte l'épisode
-    MJ -> S : Accepte/rejette l'épisode
+    MJ -> S : Valide ou refuse l'épisode
     S --> J : Notifie la décision du MJ
     S -> S : Publication de l'épisode si accepté
     J --> S : Consulte l'épisode publié
-    MJ --> S : Consulte l'épisode publié
+    note over J,MJ :  Les utilisateurs peuvent consulter l'épisode
 
 newpage
     
     == Transfert de MJ ==
     J -> S : Demande le transfert de MJ
-    S -> S : Verifie les conditions de transfert
     S -> MJ : Notifie la demande de transfert
-    MJ -> S : Accepte/rejette le transfert de MJ
+    MJ -> S : Accepte/refuse le transfert de MJ
     S --> J : Notifie la décision du MJ
-    S -> S : Effectue le transfert si accepté
 
 newpage
 
@@ -58,7 +55,7 @@ newpage
     S -> J : Rend la proposition visible aux autres joueurs
     J --> S : Consulte la proposition de partie
     MJ -> S : Ajoute/retire des personnages participants
-    MJ -> S : Cloture de la partie (saisie du résumé)
+    MJ -> S : Clôture de la partie (saisie du résumé)
     S -> J : Transformation en aventure et publication
     J --> S : Consulte l'aventure publiée
 
