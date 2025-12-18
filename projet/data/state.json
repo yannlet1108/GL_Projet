@@ -1,0 +1,36 @@
+{
+  "personnages": [
+    {
+      "id": 1,
+      "nom": "michel",
+      "dateNaissance": "octobre",
+      "profession": "chomeur",
+      "joueurId": 1,
+      "episodes": [
+        {
+          "id": 0,
+          "titre": "Biographie initiale",
+          "dateRelative": "0",
+          "statut": "BROUILLON",
+          "paragraphes": [
+            {
+              "id": 0,
+              "ordre": 1,
+              "texte": "N\u0027a rien fait",
+              "publique": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "utilisateurConnecteId": 1,
+  "utilisateurs": [
+    {
+      "id": 1,
+      "nom": "yohan",
+      "email": "yohan@yohan.com",
+      "passwordHash": "229346eb187dadfebc075961f299592f4fb2b8ae43102ac20111fb0cb13f3e5f"
+    }
+  ]
+}
