@@ -22,9 +22,10 @@ Episode "0..*" --> "0..1" Aventure
 Episode "1" o-- "1..*" Paragraphe
 
 Partie "1" --> "1" Utilisateur : MJ
-Partie "0..*" --> "0..*" Utilisateur : joueurs
 Partie "0..*" --> "0..*" Personnage : participants
 Partie "1" --> "1" Univers
-Partie "0..*" --> "0..1" Aventure : devient
+Partie "0..1" --> "0..1" Aventure : génère >
+
+Aventure "0..*" --> "0..*" Personnage : participants
 
 @enduml
