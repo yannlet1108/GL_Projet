@@ -27,15 +27,15 @@ Projet de conception d'un logiciel de gestion de jeu de rôle (JDR) dans le cadr
 
 ### Exécution :
 Pour exécuter l'application, utilisez la commande suivante :
-    ```bash
-    mvn -f pom.xml exec:java -Dexec.mainClass="polytech.info5.gl.projet.App"
-    ```
+```bash
+mvn -f pom.xml exec:java -Dexec.mainClass="polytech.info5.gl.projet.App"
+```
 
 Pour exécuter les tests unitaires, utilisez la commande suivante :
 (l'option -q pour "quiet" réduit la verbosité de la sortie)
-    ```bash
-    mvn -f pom.xml test
-    ```
+```bash
+mvn -f pom.xml test
+```
 
 
 ### Fonctionnalités :
