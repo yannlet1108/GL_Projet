@@ -1,0 +1,219 @@
+@startuml classe_conception
+
+' ======================================================
+' ==                    MODÈLE (M)                   ==
+' ======================================================
+ 
+package "Modèle" {
+
+    class Utilisateur {
+        - id : int
+        - nom : String
+        - email : String
+        - passwordHash : String
+        --
+        + connecter(mdp : String) : boolean
+    }
+
+    class Univers {
+        - id : int
+        - nom : String
+        - description : String
+    }
+
+    class Personnage {
+        - id : int
+        - nom : String
+        - dateNaissance : String
+        - profession : String
+        - portrait : Image
+        --
+        - joueur : Utilisateur
+        - MJ : Utilisateur
+        - mjEnAttente : Utilisateur
+        - univers : Univers
+        - biographie : Biographie
+        --
+        + appartientAUnivers(univers : Univers) : boolean
+        + appartientAJoueur(utilisateur : Utilisateur) : boolean
+        + aMemeJoueur(personnage : Personnage) : boolean
+        + estDansPartieEnCours() : boolean  // pour vérifier si changement MJ possible
+        + changerProfession(nouvelleProfession : String) : void
+        + peutChangerMJ() : boolean
+        + demanderChangementMJ(nouveauMJ : Utilisateur) : void
+        + accepterChangementMJ(utilisateur : Utilisateur) : boolean  // vérifie que c'est bien le MJ en attente
+        + refuserChangementMJ(utilisateur : Utilisateur) : boolean
+        + cederPersonnage(nouveauJoueur : Utilisateur, demandeur : Utilisateur) : boolean
+        + getAventures() : List<Aventure>
+    }
+
+    class Biographie {
+        - id : int
+        --
+        - personnage : Personnage
+        - episodes : List<Episode>
+        --
+        + ajouterEpisode(ep:Episode)
+        + supprimerEpisode(ep:Episode)
+        + validerEpisode(ep:Episode)
+        + getEpisodesVisiblesPar(utilisateur : Utilisateur) : List<Episode>
+    }
+
+    class Episode {
+        - id : int
+        - titre : String
+        - dateRelative : String
+        - isValideParMJ : boolean
+        - isValideParJoueur : boolean
+        --
+        - paragraphes : List<Paragraphe>
+        - aventure : Aventure
+        - statut : StatutEpisode
+        --
+        + isModifiablePar(utilisateur : Utilisateur) : boolean
+        + validerParJoueur(utilisateur : Utilisateur) : boolean
+        + validerParMJ(utilisateur : Utilisateur) : boolean
+        + isCompletementValide() : boolean
+        + ajouterParagraphe(p : Paragraphe) : void
+        + retirerParagraphe(p : Paragraphe) : void
+    }
+
+    enum StatutEpisode {
+        BROUILLON
+        EN_ATTENTE_VALIDATION
+        VALIDE
+    }
+
+    class Paragraphe {
+        - id : int
+        - ordre : int
+        - texte : String
+        - isPublique : boolean
+        --
+        + isPublique() : boolean
+        + isVisiblePar(utilisateur : Utilisateur) : boolean
+        + rendrePublic(utilisateur : Utilisateur) : boolean
+    }
+
+    class Aventure {
+        - id : int
+        - titre : String
+        - resume : String
+        --
+        - univers : Univers
+        - personnages : List<Personnage>
+        --
+    }
+
+    class Partie {
+        - id : int
+        - titre : String
+        - situationInitiale : String
+        - date : Date
+        - lieu : String
+        - terminee : boolean
+        --
+        - univers : Univers
+        - MJ : Utilisateur
+        - personnages : List<Personnage>
+        - aventureGeneree : Aventure
+        --
+        + isPersonnageAjoutable(personnage : Personnage) : boolean
+        + ajouterPersonnage(p:Personnage)
+        + retirerPersonnage(p:Personnage)
+        + terminerPartie(resume:String) : Aventure
+        + isModifiable() : boolean
+        + supprimerProposition()
+    }
+
+    Personnage "1" o-- "1" Biographie
+    Personnage "1" --> "1" Utilisateur : propriétaire
+    Personnage "1" --> "1" Utilisateur : MJ
+    Personnage "1" --> "1" Univers
+
+    Biographie "1" *-- "1..*" Episode
+
+    Episode "0..*" --> "0..1" Aventure
+    Episode "1" *-- "1..*" Paragraphe
+
+    Partie "1" --> "1" Utilisateur : MJ
+    Partie "0..*" --> "0..*" Personnage : participants
+    Partie "1" --> "1" Univers
+    Partie "0..1" --> "0..1" Aventure : génère >
+
+    Aventure "0..*" --> "0..*" Personnage : participants
+
+}
+
+newpage
+' ======================================================
+' ==                CONTRÔLEURS (C)                   ==
+' ======================================================
+
+package "Contrôleurs" {
+
+    class PersonnageController {
+        + creerPersonnage(nom, dateNaissance, profession,bioInitiale, utilisateurConnecte : Utilisateur) : Personnage
+        + afficherPersonnage(idPers, utilisateurConnecte : Utilisateur) : void
+        + modifierProfession(idPers, nvProfession, utilisateurConnecte : Utilisateur) : boolean
+        + cederPersonnage(idPers, idNewJoueur, utilisateurConnecte : Utilisateur) : boolean
+        + demanderChangementMJ(idPers, idNewMJ, utilisateurConnecte : Utilisateur) : boolean
+        + accepterChangementMJ(idPers, utilisateurConnecte : Utilisateur) : boolean
+        + refuserChangementMJ(idPers, utilisateurConnecte : Utilisateur) : boolean
+        + listerPersonnages(utilisateurConnecte : Utilisateur) : void
+    }
+
+    class BiographieController {
+        + afficherBiographie(idPers, utilisateurConnecte : Utilisateur) : void
+        + afficherEpisode(idEp, utilisateurConnecte : Utilisateur) : void
+    }
+
+    class EpisodeController {
+        + creerEpisode(idPers, data, utilisateurConnecte : Utilisateur) : Episode
+        + modifierEpisode(idEp, data, utilisateurConnecte : Utilisateur) : boolean
+        + ajouterParagraphe(idEp, texte, estSecret, ordre, utilisateurConnecte : Utilisateur) : boolean
+        + supprimerParagraphe(idPar, utilisateurConnecte : Utilisateur) : boolean
+        + validerEpisode(idEp, utilisateurConnecte : Utilisateur) : boolean
+        + supprimerEpisode(idEp, utilisateurConnecte : Utilisateur) : boolean
+        + revelerParagraphe(idPar, utilisateurConnecte : Utilisateur) : boolean
+    }
+
+    class PartieController {
+        + creerPartie(data, utilisateurConnecte : Utilisateur) : Partie
+        + afficherPartie(idPartie, utilisateurConnecte : Utilisateur) : void
+        + listerParties(utilisateurConnecte : Utilisateur) : void
+        + ajouterParticipant(idPartie, idPers, utilisateurConnecte : Utilisateur) : boolean
+        + retirerParticipant(idPartie, idPers, utilisateurConnecte : Utilisateur) : boolean
+        + terminerPartie(idPartie, resume, utilisateurConnecte : Utilisateur) : boolean
+        + supprimerPartie(idPartie, utilisateurConnecte : Utilisateur) : boolean
+    }
+
+    class AuthController {
+        + login(email, mdp) : Utilisateur
+        + logout() : void
+        + register(nom, email, mdp) : Utilisateur
+        + getUtilisateurConnecte() : Utilisateur
+    }
+
+}
+' Invisible vertical connectors so controllers render one above another
+PersonnageController -[#white]-> BiographieController
+BiographieController -[#white]-> EpisodeController
+EpisodeController -[#white]-> PartieController
+PartieController -[#white]-> AuthController
+
+
+newpage
+' ======================================================
+' ==                    VUES (V)                      ==
+' ======================================================
+
+package "Vues" {
+    class VuePersonnage
+    class VueBiographie
+    class VuePartie
+    class VueEpisode
+    class VueConnexion
+}
+
+@enduml
