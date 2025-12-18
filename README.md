@@ -9,25 +9,33 @@ Projet de conception d'un logiciel de gestion de jeu de rôle (JDR) dans le cadr
 
 
 ### Prerequis :
-- Java 11 ou supérieur
-- Maven 3.6 ou supérieur
-- Git pour cloner le dépôt
+- Java 11 ou supérieur (```java -version``` pour vérifier l'installation)
+- Maven 3.6 ou supérieur (```mvn -v``` pour vérifier l'installation)
+- Git pour cloner le dépôt (```git --version``` pour vérifier l'installation)
 
 ### Installation :
 1. Cloner le dépôt Git :
    ```bash
     git clone https://github.com/yannlet1108/GL_Projet.git
-    cd Projet
+    cd GL_Projet
     ```
-2. Construire le projet avec Maven :
+2. Compiler le projet avec Maven (+execution des tests) :
     ```bash
-    mvn clean install
+    cd projet
+    mvn -q -f pom.xml clean package
     ```
 
 ### Exécution :
 Pour exécuter l'application, utilisez la commande suivante :
-```bash
-mvn exec:java -Dexec.mainClass="com.projetjdr.Main"
-```
+    ```bash
+    mvn -f pom.xml exec:java -Dexec.mainClass="polytech.info5.gl.projet.App"
+    ```
+
+Pour exécuter les tests unitaires, utilisez la commande suivante :
+(l'option -q pour "quiet" réduit la verbosité de la sortie)
+    ```bash
+    mvn -f pom.xml test
+    ```
+
 
 ### Fonctionnalités :
