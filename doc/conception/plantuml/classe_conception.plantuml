@@ -27,13 +27,17 @@ package "Modèle" {
         - dateNaissance : String
         - profession : String
         - portrait : Image
+        - isValide : boolean
         --
         - joueur : Utilisateur
         - MJ : Utilisateur
-        - mjEnAttente : Utilisateur
+        - mjEnAttenteChangement : Utilisateur
         - univers : Univers
         - biographie : Biographie
         --
+        + 
+        + isValide() : boolean
+        + validerParMJ(utilisateur : Utilisateur) : boolean
         + appartientAUnivers(univers : Univers) : boolean
         + appartientAJoueur(utilisateur : Utilisateur) : boolean
         + aMemeJoueur(personnage : Personnage) : boolean
