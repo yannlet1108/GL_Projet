@@ -123,8 +123,32 @@ public class ConsoleApp {
                 case "1": doListPersonnages(u); break;
                 case "2": doCreatePersonnage(u); break;
                 case "3": doVoirPersonnage(u); break;
-                case "4": System.out.println("Fonction transférer non implémentée"); break;
-                case "5": System.out.println("Fonction changer de MJ non implémentée"); break;
+                case "4": {
+                    System.out.print("Id du personnage à transférer: ");
+                    String sid = scanner.nextLine().trim();
+                    try {
+                        int idp = Integer.parseInt(sid);
+                        System.out.print("Id du nouveau joueur: ");
+                        String sn = scanner.nextLine().trim();
+                        int idnew = Integer.parseInt(sn);
+                        boolean ok = pc.cederPersonnage(idp, idnew, u);
+                        System.out.println(ok ? "Transfert effectué" : "Échec du transfert");
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                    break;
+                }
+                case "5": {
+                    System.out.print("Id du personnage pour changement de MJ: ");
+                    String sid2 = scanner.nextLine().trim();
+                    try {
+                        int idp = Integer.parseInt(sid2);
+                        System.out.print("Id du MJ souhaité: ");
+                        String sm = scanner.nextLine().trim();
+                        int idmj = Integer.parseInt(sm);
+                        boolean ok = pc.demanderChangementMJ(idp, idmj, u);
+                        System.out.println(ok ? "Demande envoyée" : "Échec de la demande");
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                    break;
+                }
                 case "6": return;
                 default: System.out.println("Commande inconnue");
             }
@@ -148,11 +172,33 @@ public class ConsoleApp {
             System.out.println("\nPersonnages (MJ) - options:\n1) Personnages à valider (stub)\n2) Lister les personnages\n3) Consulter un personnage\n4) Retour");
             String cmd = scanner.nextLine().trim();
             switch (cmd) {
-                case "1": System.out.println("Fonction 'à valider' non implémentée"); break;
-                case "2": {
+                case "1": {
+                    // lister personnages avec MJ en attente
                     List<Personnage> all = pc.listerTous();
-                    if (all.isEmpty()) System.out.println("Aucun personnage enregistré.");
-                    else { for (Personnage p : all) System.out.println("- id=" + p.getId() + " | " + p.getNom() + " (" + p.getProfession() + ") MJ=" + (p.getMJ()!=null? p.getMJ().getNom():"(aucun)")); }
+                    List<Personnage> pending = new java.util.ArrayList<>();
+                    for (Personnage p : all) if (p.getMjEnAttente() != null) pending.add(p);
+                    if (pending.isEmpty()) { System.out.println("Aucune demande de changement de MJ en attente."); break; }
+                    System.out.println("Demandes en attente:");
+                    for (Personnage p : pending) System.out.println("- id=" + p.getId() + " | " + p.getNom() + " | MJ actuel=" + (p.getMJ()!=null? p.getMJ().getNom():"(aucun)") + " | nouveauMJId=" + p.getMjEnAttente().getId());
+                    System.out.print("Id du personnage à traiter (ou 'b' pour revenir): ");
+                    String sid = scanner.nextLine().trim();
+                    if (sid.equalsIgnoreCase("b")) break;
+                    try {
+                        int idp = Integer.parseInt(sid);
+                        System.out.print("Tapez 'a' pour accepter, 'r' pour refuser: ");
+                        String act = scanner.nextLine().trim();
+                        if (act.equalsIgnoreCase("a")) {
+                            boolean ok = pc.accepterChangementMJ(idp, u);
+                            System.out.println(ok ? "Changement de MJ accepté" : "Échec de l'acceptation");
+                        } else if (act.equalsIgnoreCase("r")) {
+                            boolean ok = pc.refuserChangementMJ(idp, u);
+                            System.out.println(ok ? "Changement de MJ refusé" : "Échec du refus");
+                        } else System.out.println("Action inconnue");
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                    break;
+                }
+                case "2": {
+                    doListPersonnagesEnTantQueMJ(u);
                     break;
                 }
                 case "3": doVoirPersonnage(u); break;
@@ -169,7 +215,59 @@ public class ConsoleApp {
             switch (cmd) {
                 case "1": doListPartiesEnCours(); break;
                 case "2": doCreatePartie(u); break;
-                case "3": System.out.println("Consulter une partie non implémentée"); break;
+                case "3": {
+                    System.out.print("Id de la partie: ");
+                    String sid = scanner.nextLine().trim();
+                    try {
+                        int idp = Integer.parseInt(sid);
+                        Optional<Partie> op = partieCtrl.findById(idp);
+                        if (op.isEmpty()) { System.out.println("Partie introuvable"); break; }
+                        Partie p = op.get();
+                        vuePartie.afficher(p);
+                        // sous-menu de gestion
+                        while (true) {
+                            System.out.println("Gestion partie: 1) Lister participants 2) Ajouter participant 3) Retirer participant 4) Terminer 5) Supprimer 6) Retour");
+                            String sc = scanner.nextLine().trim();
+                            if (sc.equals("1")) {
+                                if (p.getPersonnages().isEmpty()) System.out.println("Aucun participant");
+                                else for (Personnage pp : p.getPersonnages()) System.out.println("- id=" + pp.getId() + " | " + pp.getNom());
+                            } else if (sc.equals("2")) {
+                                System.out.print("Id du personnage à ajouter: "); String sPar = scanner.nextLine().trim();
+                                try {
+                                    int idPers = Integer.parseInt(sPar);
+                                    Optional<Personnage> opp = pc.findById(idPers);
+                                    if (opp.isEmpty()) { System.out.println("Personnage introuvable"); }
+                                    else {
+                                        boolean ok = partieCtrl.ajouterParticipant(p.getId(), opp.get(), u);
+                                        System.out.println(ok ? "Participant ajouté" : "Impossible d'ajouter le participant (vérifier univers/MJ)");
+                                    }
+                                } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                            } else if (sc.equals("3")) {
+                                System.out.print("Id du personnage à retirer: "); String sPar = scanner.nextLine().trim();
+                                try {
+                                    int idPers = Integer.parseInt(sPar);
+                                    Optional<Personnage> opp = pc.findById(idPers);
+                                    if (opp.isEmpty()) { System.out.println("Personnage introuvable"); }
+                                    else {
+                                        boolean ok = partieCtrl.retirerParticipant(p.getId(), opp.get(), u);
+                                        System.out.println(ok ? "Participant retiré" : "Échec du retrait");
+                                    }
+                                } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                            } else if (sc.equals("4")) {
+                                System.out.print("Résumé de la partie (court texte): "); String resume = scanner.nextLine().trim();
+                                boolean ok = partieCtrl.terminerPartie(p.getId(), resume, u);
+                                System.out.println(ok ? "Partie terminée" : "Échec lors de la clôture");
+                                if (ok) break;
+                            } else if (sc.equals("5")) {
+                                boolean ok = partieCtrl.supprimerPartie(p.getId(), u);
+                                System.out.println(ok ? "Proposition supprimée" : "Échec de suppression (peut-être terminée ou droits insuffisants)");
+                                if (ok) break;
+                            } else if (sc.equals("6")) break;
+                            else System.out.println("Commande inconnue");
+                        }
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                    break;
+                }
                 case "4": return;
                 default: System.out.println("Commande inconnue");
             }
