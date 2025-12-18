@@ -1,0 +1,17 @@
+@startuml sequence_logiciel
+
+skinparam actorStyle awesome
+
+actor Joueur as J
+actor "Maitre du jeu" as MJ
+
+boundary "EpisodeView"
+control "EpisodeController"
+entity Personnage
+entity Biographie
+entity Episode
+entity Utilisateur
+
+
+
+@enduml
