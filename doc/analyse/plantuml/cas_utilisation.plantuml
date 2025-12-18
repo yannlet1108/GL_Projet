@@ -1,4 +1,5 @@
 @startuml cas_utilisation
+left to right direction
 skinparam actorStyle awesome
 skinparam usecasePadding 8
 
@@ -8,28 +9,30 @@ MJ --|> J
 
 rectangle "Personnages" as P {
     usecase "Créer le personnage"
-    usecase "Proposer un à un MJ"
-    usecase "Accepter/rejeter un personnage"
     usecase "Modifier la profession"
     usecase "Consulter les informations d'un personnage"
     usecase "Transferer la propriété à un autre joueur"
-    usecase "Demander un changement de MJ"
-    usecase "Accepter/rejeter un changement de MJ"
     usecase "Consulter ses personnages"
 }
+rectangle "Personnage MJ" as G {
+    usecase "Proposer un à un MJ"
+    usecase "Accepter/rejeter un personnage"
+    usecase "Demander un changement de MJ"
+    usecase "Accepter/rejeter un changement de MJ"
+}
+
 J -- (Créer le personnage)
 J -- (Proposer un à un MJ)
 MJ -- (Accepter/rejeter un personnage)
 J -- (Modifier la profession)
 J -- (Consulter les informations d'un personnage)
-MJ -- (Consulter les informations d'un personnage)
 J -- (Transferer la propriété à un autre joueur)
 J -- (Demander un changement de MJ)
 MJ -- (Accepter/rejeter un changement de MJ)
 J -- (Consulter ses personnages)
 
 newpage
-
+left to right direction
 actor "Joueur" as J
 actor "Maitre de jeu" as MJ
 MJ --|> J
@@ -58,7 +61,7 @@ J -- (Consulter la biographie d'un personnage)
 J -- (Reveler un paragraphe secret)
 
 newpage
-
+left to right direction
 actor "Joueur" as J
 actor "Maitre de jeu" as MJ
 MJ --|> J
