@@ -37,6 +37,14 @@ public class PersonnageController {
         return p;
     }
 
+    /** Crée un personnage en proposant un MJ (id). Le MJ proposé est placé en attente de validation. */
+    public Personnage creerPersonnageAvecMJ(String nom, String dateNaissance, String profession, String bioInitiale, int idProposeMJ, Utilisateur utilisateurConnecte) {
+        Personnage p = creerPersonnage(nom, dateNaissance, profession, bioInitiale, utilisateurConnecte);
+        Utilisateur propo = new Utilisateur(idProposeMJ, null, null, null);
+        p.demanderChangementMJ(propo); // réutilise le champ mjEnAttente pour la proposition initiale
+        return p;
+    }
+
     /** Retourne la liste de tous les personnages stockés. */
     public List<Personnage> listerTous() { return new ArrayList<>(personnages); }
 

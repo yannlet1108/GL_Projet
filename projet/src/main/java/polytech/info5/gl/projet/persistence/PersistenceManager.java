@@ -59,7 +59,16 @@ public class PersistenceManager {
                 pd.joueurId = p.getJoueur().getId();
             }
             if (p.getMJ() != null) {
-                UtilisateurDTO md = new UtilisateurDTO(); md.id = p.getMJ().getId(); md.nom = p.getMJ().getNom(); md.email = p.getMJ().getEmail(); md.passwordHash = p.getMJ().getPasswordHash(); pd.MJ = md;
+                // store only MJ id to avoid duplicating full user objects
+                // keep field name compatible: replace UtilisateurDTO with mjId
+                try {
+                    java.lang.reflect.Field f = PersonnageDTO.class.getDeclaredField("MJ");
+                    // set a small DTO with only id to keep JSON shape backward-compatible
+                    UtilisateurDTO md = new UtilisateurDTO(); md.id = p.getMJ().getId(); pd.MJ = md;
+                } catch (Exception ex) {
+                    // fallback: set full DTO
+                    UtilisateurDTO md = new UtilisateurDTO(); md.id = p.getMJ().getId(); md.nom = p.getMJ().getNom(); md.email = p.getMJ().getEmail(); md.passwordHash = p.getMJ().getPasswordHash(); pd.MJ = md;
+                }
             }
             if (p.getUnivers() != null) {
                 UniversDTO udto = new UniversDTO(); udto.id = p.getUnivers().getId(); udto.nom = p.getUnivers().getNom(); udto.description = p.getUnivers().getDescription(); pd.univers = udto;

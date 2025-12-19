@@ -1,24 +1,21 @@
-package polytech.info5.gl.projet.console;
+package polytech.info5.gl.projet.view;
 
 import polytech.info5.gl.projet.controller.AuthController;
 import polytech.info5.gl.projet.controller.PersonnageController;
 import polytech.info5.gl.projet.controller.PartieController;
 import polytech.info5.gl.projet.controller.EpisodeController;
 import polytech.info5.gl.projet.controller.BiographieController;
-import polytech.info5.gl.projet.view.VuePartie;
 import polytech.info5.gl.projet.model.Partie;
 import polytech.info5.gl.projet.model.Personnage;
 import polytech.info5.gl.projet.model.Utilisateur;
 import polytech.info5.gl.projet.model.Episode;
 import polytech.info5.gl.projet.model.Paragraphe;
-import polytech.info5.gl.projet.view.VueBiographie;
-import polytech.info5.gl.projet.view.VuePersonnage;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
-/** Console interactive simple pour naviguer dans l'application. */
+/** Console interactive simple pour naviguer dans l'application. (déplacée dans view) */
 public class ConsoleApp {
 
     private final AuthController auth = new AuthController();
@@ -117,7 +114,7 @@ public class ConsoleApp {
 
     private void playerPersonnageMenu(Utilisateur u) {
         while (true) {
-            System.out.println("\nPersonnages - options:\n1) Lister mes personnages\n2) Créer personnage\n3) Consulter un personnage\n4) Transférer un personnage (stub)\n5) Changer de MJ (stub)\n6) Retour");
+            System.out.println("\nPersonnages - options:\n1) Lister mes personnages\n2) Créer personnage\n3) Consulter un personnage\n4) Transférer un personnage\n5) Changer de MJ\n6) Retour");
             String cmd = scanner.nextLine().trim();
             switch (cmd) {
                 case "1": doListPersonnages(u); break;
@@ -169,7 +166,7 @@ public class ConsoleApp {
 
     private void mjPersonnageMenu(Utilisateur u) {
         while (true) {
-            System.out.println("\nPersonnages (MJ) - options:\n1) Personnages à valider (stub)\n2) Lister les personnages\n3) Consulter un personnage\n4) Retour");
+            System.out.println("\nPersonnages (MJ) - options:\n1) Personnages à valider\n2) Lister les personnages\n3) Consulter un personnage\n4) Retour");
             String cmd = scanner.nextLine().trim();
             switch (cmd) {
                 case "1": {
@@ -177,23 +174,48 @@ public class ConsoleApp {
                     List<Personnage> all = pc.listerTous();
                     List<Personnage> pending = new java.util.ArrayList<>();
                     for (Personnage p : all) if (p.getMjEnAttente() != null) pending.add(p);
-                    if (pending.isEmpty()) { System.out.println("Aucune demande de changement de MJ en attente."); break; }
-                    System.out.println("Demandes en attente:");
-                    for (Personnage p : pending) System.out.println("- id=" + p.getId() + " | " + p.getNom() + " | MJ actuel=" + (p.getMJ()!=null? p.getMJ().getNom():"(aucun)") + " | nouveauMJId=" + p.getMjEnAttente().getId());
-                    System.out.print("Id du personnage à traiter (ou 'b' pour revenir): ");
-                    String sid = scanner.nextLine().trim();
-                    if (sid.equalsIgnoreCase("b")) break;
+                    if (!pending.isEmpty()) {
+                        System.out.println("Demandes de MJ en attente:");
+                        for (Personnage p : pending) System.out.println("- id=" + p.getId() + " | " + p.getNom() + " | MJ actuel=" + (p.getMJ()!=null? p.getMJ().getNom():"(aucun)") + " | nouveauMJId=" + p.getMjEnAttente().getId());
+                        System.out.print("Id du personnage à traiter (ou 'b' pour passer aux épisodes): ");
+                        String sid = scanner.nextLine().trim();
+                        if (!sid.equalsIgnoreCase("b")) {
+                            try {
+                                int idp = Integer.parseInt(sid);
+                                System.out.print("Tapez 'a' pour accepter, 'r' pour refuser: ");
+                                String act = scanner.nextLine().trim();
+                                if (act.equalsIgnoreCase("a")) {
+                                    boolean ok = pc.accepterChangementMJ(idp, u);
+                                    System.out.println(ok ? "Changement de MJ accepté" : "Échec de l'acceptation");
+                                } else if (act.equalsIgnoreCase("r")) {
+                                    boolean ok = pc.refuserChangementMJ(idp, u);
+                                    System.out.println(ok ? "Changement de MJ refusé" : "Échec du refus");
+                                } else System.out.println("Action inconnue");
+                            } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                        }
+                    } else {
+                        System.out.println("Aucune demande de changement de MJ en attente.");
+                    }
+
+                    // lister épisodes en attente de validation pour lesquels l'utilisateur est MJ
+                    List<Episode> epsPending = new java.util.ArrayList<>();
+                    for (Personnage p : all) {
+                        if (p.getMJ() != null && u != null && p.getMJ().getId() == u.getId()) {
+                            for (Episode e : p.getBiographie().getEpisodes()) {
+                                if (e.getStatut() == polytech.info5.gl.projet.model.StatutEpisode.EN_ATTENTE_VALIDATION) epsPending.add(e);
+                            }
+                        }
+                    }
+                    if (epsPending.isEmpty()) { System.out.println("Aucun épisode en attente de validation."); break; }
+                    System.out.println("Épisodes en attente de validation:");
+                    for (Episode e : epsPending) System.out.println("- id=" + e.getId() + " | titre=" + (e.getTitre()!=null?e.getTitre():"(sans titre)") + " | statut=" + e.getStatut());
+                    System.out.print("Id de l'épisode à valider (ou 'b' pour revenir): ");
+                    String seid = scanner.nextLine().trim();
+                    if (seid.equalsIgnoreCase("b")) break;
                     try {
-                        int idp = Integer.parseInt(sid);
-                        System.out.print("Tapez 'a' pour accepter, 'r' pour refuser: ");
-                        String act = scanner.nextLine().trim();
-                        if (act.equalsIgnoreCase("a")) {
-                            boolean ok = pc.accepterChangementMJ(idp, u);
-                            System.out.println(ok ? "Changement de MJ accepté" : "Échec de l'acceptation");
-                        } else if (act.equalsIgnoreCase("r")) {
-                            boolean ok = pc.refuserChangementMJ(idp, u);
-                            System.out.println(ok ? "Changement de MJ refusé" : "Échec du refus");
-                        } else System.out.println("Action inconnue");
+                        int ide = Integer.parseInt(seid);
+                        boolean ok = episodeCtrl.validerEpisode(ide, u);
+                        System.out.println(ok ? "Épisode validé" : "Échec validation");
                     } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
                     break;
                 }
@@ -210,7 +232,7 @@ public class ConsoleApp {
 
     private void mjPartieMenu(Utilisateur u) {
         while (true) {
-            System.out.println("\nParties (MJ) - options:\n1) Lister les parties en cours\n2) Créer une partie\n3) Consulter une partie (stub)\n4) Retour");
+            System.out.println("\nParties (MJ) - options:\n1) Lister les parties en cours\n2) Créer une partie\n3) Consulter une partie\n4) Retour");
             String cmd = scanner.nextLine().trim();
             switch (cmd) {
                 case "1": doListPartiesEnCours(); break;
@@ -295,7 +317,37 @@ public class ConsoleApp {
         System.out.print("Date de naissance (texte): "); String date = scanner.nextLine().trim();
         System.out.print("Profession: "); String prof = scanner.nextLine().trim();
         System.out.print("Biographie initiale (laisser vide si none): "); String bio = scanner.nextLine().trim();
-        Personnage p = pc.creerPersonnage(nom, date, prof, bio, u);
+        // Allow interactive selection of a proposed MJ: user can type 'l' to list users
+        System.out.print("Id du MJ proposé (laisser vide si aucun, 'l' pour lister utilisateurs): ");
+        String smj = scanner.nextLine().trim();
+        // if user asked to list, show users and re-prompt until blank or numeric id
+        while (smj != null && smj.equalsIgnoreCase("l")) {
+            java.util.List<Utilisateur> users = auth.getAllUsers();
+            if (users.isEmpty()) {
+                System.out.println("Aucun utilisateur enregistré.");
+            } else {
+                System.out.println("Utilisateurs disponibles :");
+                for (Utilisateur uu : users) {
+                    System.out.println("- id=" + uu.getId() + " | " + uu.getNom() + " | " + uu.getEmail());
+                }
+            }
+            System.out.print("Id du MJ proposé (laisser vide si aucun, 'l' pour relister): ");
+            smj = scanner.nextLine().trim();
+        }
+
+        Personnage p;
+        if (smj == null || smj.isBlank()) {
+            p = pc.creerPersonnage(nom, date, prof, bio, u);
+        } else {
+            try {
+                int idmj = Integer.parseInt(smj);
+                p = pc.creerPersonnageAvecMJ(nom, date, prof, bio, idmj, u);
+                System.out.println("Proposition de MJ envoyée (MJ id=" + idmj + ")");
+            } catch (NumberFormatException ex) {
+                System.out.println("Identifiant MJ invalide, création sans MJ proposé.");
+                p = pc.creerPersonnage(nom, date, prof, bio, u);
+            }
+        }
         System.out.println("Personnage créé (id=" + p.getId() + ")");
     }
 
@@ -344,47 +396,134 @@ public class ConsoleApp {
             Optional<Personnage> op = pc.findById(id);
             if (op.isEmpty()) { System.out.println("Personnage introuvable"); return; }
             Personnage p = op.get();
-            // Afficher via vues
-            vueP.afficher(p);
-            vueB.afficher(p.getBiographie());
-            
-            // Navigation interactive des épisodes
-            java.util.List<Episode> episodes = p.getBiographie().getEpisodesVisiblesPar(u);
-            if (episodes == null || episodes.isEmpty()) {
-                System.out.println("Aucun épisode disponible pour ce personnage.");
-                return;
-            }
+            // Header: basic infos
+            System.out.println("--- Personnage : " + p.getNom() + " | " + (p.getProfession()!=null?p.getProfession():"(profession inconnue)") + " ---");
 
-            System.out.println("Parcourir les épisodes : tapez 'l' pour lister, un numéro pour afficher, 'q' pour revenir");
+            // Menu interactif pour consulter et gérer épisodes / MJ / transfert
             while (true) {
-                System.out.print("Episode> ");
+                System.out.println("\nGestion personnage :\n1) Consulter les épisodes validés\n2) Modifier un épisode brouillon\n3) Créer un nouvel épisode\n4) Lister les épisodes à valider\n5) Consulter un épisode à valider\n6) Transférer à un autre utilisateur\n7) Changer de MJ\n8) Retour");
+                System.out.print("Choix> ");
                 String cmd = scanner.nextLine().trim();
-                if (cmd.equalsIgnoreCase("q")) break;
-                if (cmd.equalsIgnoreCase("l")) {
-                    for (int i = 0; i < episodes.size(); i++) {
-                        Episode e = episodes.get(i);
-                        System.out.println((i+1) + ") " + (e.getTitre() != null ? e.getTitre() : "(sans titre)") + " - date: " + e.getDateRelative());
-                    }
-                    continue;
-                }
-                try {
-                    int idx = Integer.parseInt(cmd);
-                    if (idx < 1 || idx > episodes.size()) { System.out.println("Index d'épisode invalide"); continue; }
-                    Episode e = episodes.get(idx-1);
-                    System.out.println("--- Episode: " + (e.getTitre() != null ? e.getTitre() : "(sans titre)") + " ---");
-                    System.out.println("Date relative: " + e.getDateRelative());
-                    System.out.println("Statut: " + e.getStatut());
-                    java.util.List<Paragraphe> pars = e.getParagraphes();
-                    if (pars == null || pars.isEmpty()) System.out.println("[Aucun paragraphe]");
-                    else {
-                        for (int j = 0; j < pars.size(); j++) {
-                            Paragraphe par = pars.get(j);
-                            System.out.println((j+1) + ") [" + (par.isPublique() ? "public" : "secret") + "] " + par.getTexte());
+                if (cmd.equals("1")) {
+                    // Consulter épisodes validés
+                    java.util.List<Episode> eps = p.getBiographie().getEpisodes();
+                    boolean found = false;
+                    for (Episode e : eps) {
+                        if (e.getStatut() == polytech.info5.gl.projet.model.StatutEpisode.VALIDE) {
+                            found = true;
+                            System.out.println("--- id=" + e.getId() + " | " + (e.getTitre()!=null?e.getTitre():"(sans titre)") + " ---");
+                            System.out.println("Date: " + e.getDateRelative());
+                            for (Paragraphe par : e.getParagraphes()) {
+                                if (par.isPublique()) System.out.println("- " + par.getTexte());
+                            }
+                            System.out.println("---");
                         }
                     }
-                    System.out.println("--- fin épisode ---");
-                } catch (NumberFormatException ex) {
-                    System.out.println("Commande inconnue — tapez 'l', un numéro, ou 'q'");
+                    if (!found) System.out.println("Aucun épisode validé.");
+                } else if (cmd.equals("2")) {
+                    // Modifier épisode brouillon
+                    java.util.List<Episode> eps = p.getBiographie().getEpisodes();
+                    java.util.List<Episode> brouillons = new java.util.ArrayList<>();
+                    for (Episode e : eps) if (e.getStatut() == polytech.info5.gl.projet.model.StatutEpisode.BROUILLON) brouillons.add(e);
+                    if (brouillons.isEmpty()) { System.out.println("Aucun brouillon disponible."); continue; }
+                    System.out.println("Brouillons disponibles :");
+                    for (Episode e : brouillons) System.out.println("- id=" + e.getId() + " | " + (e.getTitre()!=null?e.getTitre():"(sans titre)") );
+                    System.out.print("Id de l'épisode à modifier: "); String sid = scanner.nextLine().trim();
+                    try {
+                        int ide = Integer.parseInt(sid);
+                        // Afficher le brouillon sélectionné avant modification (permet de le consulter)
+                        Episode selected = episodeCtrl.findEpisodeById(ide);
+                        if (selected == null) { System.out.println("Épisode introuvable"); continue; }
+                        System.out.println("--- Episode id=" + selected.getId() + " ---");
+                        System.out.println("Titre: " + (selected.getTitre()!=null?selected.getTitre():"(sans titre)"));
+                        System.out.println("Date: " + selected.getDateRelative());
+                        System.out.println("Statut: " + selected.getStatut());
+                        for (Paragraphe par : selected.getParagraphes()) System.out.println((par.isPublique()?"[pub] ":"[sec] ") + par.getTexte());
+
+                        System.out.print("Souhaitez-vous modifier cet épisode? (o/N): "); String modify = scanner.nextLine().trim();
+                        if (!modify.equalsIgnoreCase("o")) continue;
+
+                        System.out.print("Nouveau titre (laisser vide pour ne pas changer): "); String nt = scanner.nextLine().trim();
+                        System.out.print("Nouvelle date relative (laisser vide pour ne pas changer): "); String nd = scanner.nextLine().trim();
+                        boolean ok = episodeCtrl.modifierEpisode(ide, nt.isBlank()?null:nt, nd.isBlank()?null:nd, u);
+                        System.out.println(ok ? "Épisode modifié" : "Échec modification");
+                        // option pour ajouter paragraphe
+                        System.out.print("Ajouter un paragraphe? (o/N): "); String rep = scanner.nextLine().trim();
+                        if (rep.equalsIgnoreCase("o")) {
+                            System.out.print("Texte du paragraphe: "); String txt = scanner.nextLine().trim();
+                            System.out.print("Public? (o/N): "); String sp = scanner.nextLine().trim(); boolean estSecret = !sp.equalsIgnoreCase("o");
+                            episodeCtrl.ajouterParagraphe(ide, txt, estSecret, 1, u);
+                            System.out.println("Paragraphe ajouté (ordre 1)");
+                        }
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                } else if (cmd.equals("3")) {
+                    // Créer nouvel épisode
+                    System.out.print("Titre de l'épisode: "); String titre = scanner.nextLine().trim();
+                    System.out.print("Date relative: "); String dateRel = scanner.nextLine().trim();
+                    Episode e = episodeCtrl.creerEpisode(p.getId(), titre, dateRel, u);
+                    System.out.println(e == null ? "Échec création" : "Épisode créé (id=" + e.getId() + ")");
+                } else if (cmd.equals("4")) {
+                    // Lister épisodes à valider
+                    boolean any = false;
+                    for (Episode e : p.getBiographie().getEpisodes()) {
+                        if (e.getStatut() == polytech.info5.gl.projet.model.StatutEpisode.EN_ATTENTE_VALIDATION) {
+                            any = true;
+                            System.out.println("- id=" + e.getId() + " | " + (e.getTitre()!=null?e.getTitre():"(sans titre)") + " | statut=" + e.getStatut());
+                        }
+                    }
+                    if (!any) System.out.println("Aucun épisode en attente de validation.");
+                } else if (cmd.equals("5")) {
+                    // Consulter un épisode à valider (et permettre validation si MJ)
+                    System.out.print("Id de l'épisode à consulter: "); String sid = scanner.nextLine().trim();
+                    try {
+                        int ide = Integer.parseInt(sid);
+                        Episode e = episodeCtrl.findEpisodeById(ide);
+                        if (e == null) { System.out.println("Épisode introuvable"); continue; }
+                        System.out.println("--- Episode id=" + e.getId() + " ---");
+                        System.out.println("Titre: " + (e.getTitre()!=null?e.getTitre():"(sans titre)"));
+                        System.out.println("Date: " + e.getDateRelative());
+                        System.out.println("Statut: " + e.getStatut());
+                        for (Paragraphe par : e.getParagraphes()) System.out.println((par.isPublique()?"[pub] ":"[sec] ") + par.getTexte());
+                        // si utilisateur est MJ du personnage, proposer validation
+                        if (p.getMJ() != null && u != null && p.getMJ().getId() == u.getId()) {
+                            System.out.print("Valider cet épisode? (o/N): "); String rep = scanner.nextLine().trim();
+                            if (rep.equalsIgnoreCase("o")) {
+                                boolean ok = episodeCtrl.validerEpisode(ide, u);
+                                System.out.println(ok ? "Épisode validé" : "Échec validation");
+                            }
+                        }
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
+                } else if (cmd.equals("6")) {
+                    // Transférer à un autre utilisateur
+                    System.out.print("Id du nouvel utilisateur (ou 'l' pour lister): "); String sid = scanner.nextLine().trim();
+                    while (sid.equalsIgnoreCase("l")) {
+                        java.util.List<Utilisateur> users = auth.getAllUsers();
+                        if (users.isEmpty()) System.out.println("Aucun utilisateur."); else for (Utilisateur uu : users) System.out.println("- id="+uu.getId()+" | "+uu.getNom());
+                        System.out.print("Id du nouvel utilisateur (laisser vide pour annuler, 'l' pour relister): "); sid = scanner.nextLine().trim();
+                    }
+                    try {
+                        int idNew = Integer.parseInt(sid);
+                        boolean ok = pc.cederPersonnage(p.getId(), idNew, u);
+                        System.out.println(ok ? "Transfert effectué" : "Échec du transfert");
+                        if (ok) return; // cédé, sortir
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide ou opération annulée"); }
+                } else if (cmd.equals("7")) {
+                    // Changer de MJ (demande)
+                    System.out.print("Id du MJ souhaité (ou 'l' pour lister): "); String sid = scanner.nextLine().trim();
+                    while (sid.equalsIgnoreCase("l")) {
+                        java.util.List<Utilisateur> users = auth.getAllUsers();
+                        if (users.isEmpty()) System.out.println("Aucun utilisateur."); else for (Utilisateur uu : users) System.out.println("- id="+uu.getId()+" | "+uu.getNom());
+                        System.out.print("Id du MJ souhaité (laisser vide pour annuler, 'l' pour relister): "); sid = scanner.nextLine().trim();
+                    }
+                    try {
+                        int idmj = Integer.parseInt(sid);
+                        boolean ok = pc.demanderChangementMJ(p.getId(), idmj, u);
+                        System.out.println(ok ? "Demande de changement de MJ enregistrée" : "Échec de la demande");
+                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide ou opération annulée"); }
+                } else if (cmd.equals("8")) {
+                    return;
+                } else {
+                    System.out.println("Commande inconnue");
                 }
             }
         } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
