@@ -1,14 +1,24 @@
 package polytech.info5.gl.projet.persistence;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import polytech.info5.gl.projet.controller.PersonnageController;
-import polytech.info5.gl.projet.controller.AuthController;
-import polytech.info5.gl.projet.model.*;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import polytech.info5.gl.projet.controller.AuthController;
+import polytech.info5.gl.projet.controller.PersonnageController;
+import polytech.info5.gl.projet.model.Episode;
+import polytech.info5.gl.projet.model.Paragraphe;
+import polytech.info5.gl.projet.model.Personnage;
+import polytech.info5.gl.projet.model.Univers;
+import polytech.info5.gl.projet.model.Utilisateur;
 
 /**
  * Gestion simple de la persistence JSON de l'état de l'application.
@@ -38,7 +48,7 @@ public class PersistenceManager {
 
     public static class PersonnageDTO {
         public int id; public String nom; public String dateNaissance; public String profession;
-        public Integer joueurId; public UtilisateurDTO MJ; public UniversDTO univers;
+        public Integer joueurId; public Integer mjId; public UtilisateurDTO MJ; public UniversDTO univers;
         public List<EpisodeDTO> episodes = new ArrayList<>();
     }
 
@@ -60,15 +70,7 @@ public class PersistenceManager {
             }
             if (p.getMJ() != null) {
                 // store only MJ id to avoid duplicating full user objects
-                // keep field name compatible: replace UtilisateurDTO with mjId
-                try {
-                    java.lang.reflect.Field f = PersonnageDTO.class.getDeclaredField("MJ");
-                    // set a small DTO with only id to keep JSON shape backward-compatible
-                    UtilisateurDTO md = new UtilisateurDTO(); md.id = p.getMJ().getId(); pd.MJ = md;
-                } catch (Exception ex) {
-                    // fallback: set full DTO
-                    UtilisateurDTO md = new UtilisateurDTO(); md.id = p.getMJ().getId(); md.nom = p.getMJ().getNom(); md.email = p.getMJ().getEmail(); md.passwordHash = p.getMJ().getPasswordHash(); pd.MJ = md;
-                }
+                pd.mjId = p.getMJ().getId();
             }
             if (p.getUnivers() != null) {
                 UniversDTO udto = new UniversDTO(); udto.id = p.getUnivers().getId(); udto.nom = p.getUnivers().getNom(); udto.description = p.getUnivers().getDescription(); pd.univers = udto;
@@ -141,7 +143,14 @@ public class PersistenceManager {
                     if (u != null && u.getId() == pd.joueurId) { p.setJoueur(u); break; }
                 }
             }
-            if (pd.MJ != null) p.setMJ(new Utilisateur(pd.MJ.id, pd.MJ.nom, pd.MJ.email, pd.MJ.passwordHash));
+            // prefer restoring MJ by mjId (newer format), fallback to nested MJ DTO (legacy)
+            if (pd.mjId != null && users != null) {
+                for (Utilisateur u : users) {
+                    if (u != null && u.getId() == pd.mjId) { p.setMJ(u); break; }
+                }
+            } else if (pd.MJ != null) {
+                p.setMJ(new Utilisateur(pd.MJ.id, pd.MJ.nom, pd.MJ.email, pd.MJ.passwordHash));
+            }
             if (pd.univers != null) p.setUnivers(new Univers(pd.univers.id, pd.univers.nom, pd.univers.description));
             if (pd.episodes != null) {
                 for (EpisodeDTO ed : pd.episodes) {

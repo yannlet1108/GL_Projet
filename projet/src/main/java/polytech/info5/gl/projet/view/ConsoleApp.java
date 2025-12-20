@@ -1,19 +1,19 @@
 package polytech.info5.gl.projet.view;
 
-import polytech.info5.gl.projet.controller.AuthController;
-import polytech.info5.gl.projet.controller.PersonnageController;
-import polytech.info5.gl.projet.controller.PartieController;
-import polytech.info5.gl.projet.controller.EpisodeController;
-import polytech.info5.gl.projet.controller.BiographieController;
-import polytech.info5.gl.projet.model.Partie;
-import polytech.info5.gl.projet.model.Personnage;
-import polytech.info5.gl.projet.model.Utilisateur;
-import polytech.info5.gl.projet.model.Episode;
-import polytech.info5.gl.projet.model.Paragraphe;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+
+import polytech.info5.gl.projet.controller.AuthController;
+import polytech.info5.gl.projet.controller.BiographieController;
+import polytech.info5.gl.projet.controller.EpisodeController;
+import polytech.info5.gl.projet.controller.PartieController;
+import polytech.info5.gl.projet.controller.PersonnageController;
+import polytech.info5.gl.projet.model.Episode;
+import polytech.info5.gl.projet.model.Paragraphe;
+import polytech.info5.gl.projet.model.Partie;
+import polytech.info5.gl.projet.model.Personnage;
+import polytech.info5.gl.projet.model.Utilisateur;
 
 /** Console interactive simple pour naviguer dans l'application. (déplacée dans view) */
 public class ConsoleApp {
@@ -75,7 +75,7 @@ public class ConsoleApp {
         while (true) {
             Utilisateur u = auth.getUtilisateurConnecte();
             if (u == null) {
-                System.out.println("\nMenu (non connecté): 1) Register  2) Login  3) Exit");
+                System.out.println("\nMenu (non connecté): 1) Créer un compte  2) Se connecter  3) Quitter");
                 String cmd = scanner.nextLine().trim();
                 if (cmd.equals("1")) doRegister();
                 else if (cmd.equals("2")) doLogin();
@@ -85,7 +85,7 @@ public class ConsoleApp {
                     break;
                 }
             } else {
-                System.out.println("\nMenu principal (connecté: " + u.getNom() + "):\n1) Profil joueur\n2) Profil MJ\n3) Logout\n4) Exit");
+                System.out.println("\nMenu principal (connecté: " + u.getNom() + "):\n1) Profil joueur\n2) Profil MJ\n3) Se déconnecter\n4) Quitter");
                 String cmd = scanner.nextLine().trim();
                 switch (cmd) {
                     case "1": playerMenu(u); break;
@@ -248,7 +248,7 @@ public class ConsoleApp {
                         vuePartie.afficher(p);
                         // sous-menu de gestion
                         while (true) {
-                            System.out.println("Gestion partie: 1) Lister participants 2) Ajouter participant 3) Retirer participant 4) Terminer 5) Supprimer 6) Retour");
+                            System.out.println("Gestion partie:\n1) Lister participants\n2) Ajouter participant\n3) Retirer participant\n4) Terminer\n5) Supprimer\n6) Retour");
                             String sc = scanner.nextLine().trim();
                             if (sc.equals("1")) {
                                 if (p.getPersonnages().isEmpty()) System.out.println("Aucun participant");
@@ -402,7 +402,6 @@ public class ConsoleApp {
             // Menu interactif pour consulter et gérer épisodes / MJ / transfert
             while (true) {
                 System.out.println("\nGestion personnage :\n1) Consulter les épisodes validés\n2) Modifier un épisode brouillon\n3) Créer un nouvel épisode\n4) Lister les épisodes à valider\n5) Consulter un épisode à valider\n6) Transférer à un autre utilisateur\n7) Changer de MJ\n8) Retour");
-                System.out.print("Choix> ");
                 String cmd = scanner.nextLine().trim();
                 if (cmd.equals("1")) {
                     // Consulter épisodes validés
