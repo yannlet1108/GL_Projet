@@ -25,9 +25,7 @@ public class EpisodeController {
         e.setId(nextEpisodeId++);
         e.setTitre(titre);
         e.setDateRelative(dateRelative);
-        // Le créateur (joueur) valide sa propre création et l'épisode passe en attente de validation MJ
-        e.validerParJoueur(utilisateurConnecte);
-        if (!e.isCompletementValide()) e.setStatut(StatutEpisode.EN_ATTENTE_VALIDATION);
+        e.setStatut(StatutEpisode.EN_ATTENTE_VALIDATION);
         p.getBiographie().ajouterEpisode(e);
         return e;
     }
@@ -70,14 +68,18 @@ public class EpisodeController {
             }
             if (owner != null) break;
         }
-        if (owner != null && owner.getMJ() != null && utilisateurConnecte != null && owner.getMJ().getId() == utilisateurConnecte.getId()) {
-            // validation par MJ
+        if (owner == null || utilisateurConnecte == null) return false;
+        // validation par MJ
+        if (owner.getMJ() != null && owner.getMJ().getId() == utilisateurConnecte.getId()) {
             e.validerParMJ(utilisateurConnecte);
             return true;
         }
-        // sinon validation par le joueur (owner)
-        e.validerParJoueur(utilisateurConnecte);
-        return true;
+        // validation par le joueur (seul le joueur propriétaire peut valider en tant que joueur)
+        if (owner.getJoueur() != null && owner.getJoueur().getId() == utilisateurConnecte.getId()) {
+            e.validerParJoueur(utilisateurConnecte);
+            return true;
+        }
+        return false;
     }
 
     public boolean supprimerEpisode(int idEp, Utilisateur utilisateurConnecte) {

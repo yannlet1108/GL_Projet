@@ -140,7 +140,7 @@ public class ConsoleApp {
 
     private void mjPersonnageMenu(Utilisateur u) {
         while (true) {
-            System.out.println("\nPersonnages (MJ) - options:\n1) Personnages à valider\n2) Lister les personnages\n3) Consulter un personnage\n4) Retour");
+            System.out.println("\nPersonnages (MJ) - options:\n1) Personnages à valider\n2) Épisodes à valider\n3) Lister les personnages\n4) Consulter un personnage\n5) Retour");
             String cmd = scanner.nextLine().trim();
             switch (cmd) {
                 case "1": {
@@ -151,7 +151,7 @@ public class ConsoleApp {
                     if (!pending.isEmpty()) {
                         System.out.println("Demandes de MJ en attente:");
                         for (Personnage p : pending) System.out.println("- id=" + p.getId() + " | " + p.getNom() + " | MJ actuel=" + (p.getMJ()!=null? p.getMJ().getNom():"(aucun)") + " | nouveauMJId=" + p.getMjEnAttente().getId());
-                        System.out.print("Id du personnage à traiter (ou 'b' pour passer aux épisodes): ");
+                        System.out.print("Id du personnage à traiter (ou 'b' pour annuler): ");
                         String sid = scanner.nextLine().trim();
                         if (!sid.equalsIgnoreCase("b")) {
                             try {
@@ -170,8 +170,11 @@ public class ConsoleApp {
                     } else {
                         System.out.println("Aucune demande de changement de MJ en attente.");
                     }
-
+                    break;
+                }
+                case "2": {
                     // lister épisodes en attente de validation pour lesquels l'utilisateur est MJ
+                    List<Personnage> all = pc.listerTous();
                     List<Episode> epsPending = new java.util.ArrayList<>();
                     for (Personnage p : all) {
                         if (p.getMJ() != null && u != null && p.getMJ().getId() == u.getId()) {
@@ -193,12 +196,12 @@ public class ConsoleApp {
                     } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
                     break;
                 }
-                case "2": {
+                case "3": {
                     doListPersonnagesEnTantQueMJ(u);
                     break;
                 }
-                case "3": doVoirPersonnage(u); break;
-                case "4": return;
+                case "4": doVoirPersonnage(u); break;
+                case "5": return;
                 default: System.out.println("Commande inconnue");
             }
         }
@@ -381,7 +384,12 @@ public class ConsoleApp {
 
             // Menu interactif pour consulter et gérer épisodes / MJ / transfert
             while (true) {
-                System.out.println("\nGestion personnage :\n1) Consulter les épisodes validés\n2) Modifier un épisode brouillon\n3) Créer un nouvel épisode\n4) Lister les épisodes à valider\n5) Consulter un épisode à valider\n6) Transférer à un autre utilisateur\n7) Changer de MJ\n8) Retour");
+                boolean isMJ = (p.getMJ() != null && u != null && p.getMJ().getId() == u.getId());
+                if (isMJ) {
+                    System.out.println("\nGestion personnage (" + p.getNom() + ") :\n1) Consulter les épisodes validés\n2) Modifier un épisode brouillon\n3) Créer un nouvel épisode\n4) Lister les épisodes à valider\n5) Consulter un épisode à valider\n6) Retour");
+                } else {
+                    System.out.println("\nGestion personnage (" + p.getNom() + ") :\n1) Consulter les épisodes validés\n2) Modifier un épisode brouillon\n3) Créer un nouvel épisode\n4) Lister les épisodes à valider\n5) Consulter un épisode à valider\n6) Transférer à un autre utilisateur\n7) Changer de MJ\n8) Retour");
+                }
                 String cmd = scanner.nextLine().trim();
                 if (cmd.equals("1")) {
                     // Consulter épisodes validés
@@ -472,37 +480,41 @@ public class ConsoleApp {
                             }
                         }
                     } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
-                } else if (cmd.equals("6")) {
-                    // Transférer à un autre utilisateur
-                    System.out.print("Id du nouvel utilisateur (ou 'l' pour lister): "); String sid = scanner.nextLine().trim();
-                    while (sid.equalsIgnoreCase("l")) {
-                        java.util.List<Utilisateur> users = auth.getAllUsers();
-                        if (users.isEmpty()) System.out.println("Aucun utilisateur."); else for (Utilisateur uu : users) System.out.println("- id="+uu.getId()+" | "+uu.getNom());
-                        System.out.print("Id du nouvel utilisateur (laisser vide pour annuler, 'l' pour relister): "); sid = scanner.nextLine().trim();
-                    }
-                    try {
-                        int idNew = Integer.parseInt(sid);
-                        boolean ok = pc.cederPersonnage(p.getId(), idNew, u);
-                        System.out.println(ok ? "Transfert effectué" : "Échec du transfert");
-                        if (ok) return; // cédé, sortir
-                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide ou opération annulée"); }
-                } else if (cmd.equals("7")) {
-                    // Changer de MJ (demande)
-                    System.out.print("Id du MJ souhaité (ou 'l' pour lister): "); String sid = scanner.nextLine().trim();
-                    while (sid.equalsIgnoreCase("l")) {
-                        java.util.List<Utilisateur> users = auth.getAllUsers();
-                        if (users.isEmpty()) System.out.println("Aucun utilisateur."); else for (Utilisateur uu : users) System.out.println("- id="+uu.getId()+" | "+uu.getNom());
-                        System.out.print("Id du MJ souhaité (laisser vide pour annuler, 'l' pour relister): "); sid = scanner.nextLine().trim();
-                    }
-                    try {
-                        int idmj = Integer.parseInt(sid);
-                        boolean ok = pc.demanderChangementMJ(p.getId(), idmj, u);
-                        System.out.println(ok ? "Demande de changement de MJ enregistrée" : "Échec de la demande");
-                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide ou opération annulée"); }
-                } else if (cmd.equals("8")) {
-                    return;
                 } else {
-                    System.out.println("Commande inconnue");
+                    if (isMJ) {
+                        if (cmd.equals("6")) return;
+                        else System.out.println("Commande inconnue");
+                    } else {
+                        if (cmd.equals("6")) {
+                            // Transférer à un autre utilisateur
+                            System.out.print("Id du nouvel utilisateur (ou 'l' pour lister): "); String sid = scanner.nextLine().trim();
+                            while (sid.equalsIgnoreCase("l")) {
+                                java.util.List<Utilisateur> users = auth.getAllUsers();
+                                if (users.isEmpty()) System.out.println("Aucun utilisateur."); else for (Utilisateur uu : users) System.out.println("- id="+uu.getId()+" | "+uu.getNom());
+                                System.out.print("Id du nouvel utilisateur (laisser vide pour annuler, 'l' pour relister): "); sid = scanner.nextLine().trim();
+                            }
+                            try {
+                                int idNew = Integer.parseInt(sid);
+                                boolean ok = pc.cederPersonnage(p.getId(), idNew, u);
+                                System.out.println(ok ? "Transfert effectué" : "Échec du transfert");
+                                if (ok) return; // cédé, sortir
+                            } catch (NumberFormatException ex) { System.out.println("Identifiant invalide ou opération annulée"); }
+                        } else if (cmd.equals("7")) {
+                            // Changer de MJ (demande)
+                            System.out.print("Id du MJ souhaité (ou 'l' pour lister): "); String sid = scanner.nextLine().trim();
+                            while (sid.equalsIgnoreCase("l")) {
+                                java.util.List<Utilisateur> users = auth.getAllUsers();
+                                if (users.isEmpty()) System.out.println("Aucun utilisateur."); else for (Utilisateur uu : users) System.out.println("- id="+uu.getId()+" | "+uu.getNom());
+                                System.out.print("Id du MJ souhaité (laisser vide pour annuler, 'l' pour relister): "); sid = scanner.nextLine().trim();
+                            }
+                            try {
+                                int idmj = Integer.parseInt(sid);
+                                boolean ok = pc.demanderChangementMJ(p.getId(), idmj, u);
+                                System.out.println(ok ? "Demande de changement de MJ enregistrée" : "Échec de la demande");
+                            } catch (NumberFormatException ex) { System.out.println("Identifiant invalide ou opération annulée"); }
+                        } else if (cmd.equals("8")) { return; }
+                        else System.out.println("Commande inconnue");
+                    }
                 }
             }
         } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }

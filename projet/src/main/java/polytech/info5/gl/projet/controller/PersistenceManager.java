@@ -43,6 +43,7 @@ public class PersistenceManager {
 
     public static class EpisodeDTO {
         public int id; public String titre; public String dateRelative; public String statut;
+        public boolean isValideParMJ = false; public boolean isValideParJoueur = false;
         public List<ParagrapheDTO> paragraphes = new ArrayList<>();
     }
 
@@ -83,6 +84,8 @@ public class PersistenceManager {
             if (p.getBiographie() != null) {
                 for (Episode e : p.getBiographie().getEpisodes()) {
                     EpisodeDTO ed = new EpisodeDTO(); ed.id = e.getId(); ed.titre = e.getTitre(); ed.dateRelative = e.getDateRelative(); ed.statut = e.getStatut() != null ? e.getStatut().name() : null;
+                    ed.isValideParMJ = e.isValideParMJ();
+                    ed.isValideParJoueur = e.isValideParJoueur();
                     if (e.getParagraphes() != null) {
                         for (Paragraphe par : e.getParagraphes()) {
                             ParagrapheDTO pr = new ParagrapheDTO(); pr.id = par.getId(); pr.ordre = par.getOrdre(); pr.texte = par.getTexte(); pr.publique = par.isPublique(); ed.paragraphes.add(pr);
@@ -168,6 +171,12 @@ public class PersistenceManager {
             if (pd.episodes != null) {
                 for (EpisodeDTO ed : pd.episodes) {
                     Episode e = new Episode(); e.setId(ed.id); e.setTitre(ed.titre); e.setDateRelative(ed.dateRelative);
+                    if (ed.isValideParJoueur) e.validerParJoueur(null);
+                    if (ed.isValideParMJ) e.validerParMJ(null);
+                    // ensure statut reflects restored flags if provided
+                    if (ed.statut != null) {
+                        try { e.setStatut(polytech.info5.gl.projet.model.StatutEpisode.valueOf(ed.statut)); } catch (Exception ignored) {}
+                    }
                     if (ed.paragraphes != null) {
                         for (ParagrapheDTO pr : ed.paragraphes) {
                             Paragraphe pp = new Paragraphe(pr.id, pr.ordre, pr.texte, pr.publique);
