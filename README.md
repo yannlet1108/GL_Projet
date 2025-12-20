@@ -4,8 +4,8 @@ Projet de conception d'un logiciel de gestion de jeu de rôle (JDR) dans le cadr
 
 
 ### Auteurs :
-- Yohan Chevrier-Pivot - [@YohanChePi](https://github.com/YohanChePi)
-- Yann Letourneur - [@yannlet1108](https://github.com/yannlet1108)
+- Yohan Chevrier-Pivot
+- Yann Letourneur
 
 
 ### Prerequis :
@@ -14,14 +14,12 @@ Projet de conception d'un logiciel de gestion de jeu de rôle (JDR) dans le cadr
 - Git pour cloner le dépôt (```git --version``` pour vérifier l'installation)
 
 ### Installation :
-1. Cloner le dépôt Git :
+1. Extraire le code source de l'archive puis :
    ```bash
-    git clone https://github.com/yannlet1108/GL_Projet.git
-    cd GL_Projet
+    cd GL_Projet/projet
     ```
 2. Compiler le projet avec Maven (+execution des tests) :
     ```bash
-    cd projet
     mvn -q -f pom.xml clean package
     ```
 
@@ -36,6 +34,3 @@ Pour exécuter les tests unitaires, utilisez la commande suivante :
 ```bash
 mvn -f pom.xml test
 ```
-
-
-### Fonctionnalités :
