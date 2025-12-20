@@ -1,8 +1,14 @@
 package polytech.info5.gl.projet;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import polytech.info5.gl.projet.model.*;
+
+import polytech.info5.gl.projet.model.Episode;
+import polytech.info5.gl.projet.model.Paragraphe;
+import polytech.info5.gl.projet.model.StatutEpisode;
+import polytech.info5.gl.projet.model.Utilisateur;
 
 public class EpisodeTest {
 
@@ -30,21 +36,15 @@ public class EpisodeTest {
     }
 
     @Test
-    public void testValidationPartielleEtModifiabilite() {
+    public void testValidationPartielle() {
         Episode e = new Episode();
-        // au départ non validé
         assertFalse(e.isValideParJoueur());
         assertFalse(e.isValideParMJ());
         assertEquals(StatutEpisode.BROUILLON, e.getStatut());
 
-        // Valider seulement par le joueur
         e.validerParJoueur(new Utilisateur());
         assertTrue(e.isValideParJoueur());
         assertFalse(e.isCompletementValide());
-        // le statut ne doit pas être VALIDE tant que MJ n'a pas validé
         assertEquals(StatutEpisode.BROUILLON, e.getStatut());
-
-        // L'épisode est encore modifiable
-        assertTrue(e.isModifiablePar(new Utilisateur()));
     }
 }

@@ -1,8 +1,11 @@
 package polytech.info5.gl.projet;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import polytech.info5.gl.projet.model.*;
+
+import polytech.info5.gl.projet.model.Paragraphe;
+import polytech.info5.gl.projet.model.Utilisateur;
 
 public class ParagrapheTest {
 
@@ -10,11 +13,11 @@ public class ParagrapheTest {
     public void testVisibiliteEtRendrePublic() {
         Utilisateur u = new Utilisateur();
         Paragraphe p = new Paragraphe(5, 1, "Secret texte", false);
-        assertFalse(p.isPubliqueVisible());
+        assertFalse(p.isPublique());
         assertFalse(p.isVisiblePar(u));
 
         assertTrue(p.rendrePublic(u));
-        assertTrue(p.isPubliqueVisible());
+        assertTrue(p.isPublique());
         assertTrue(p.isVisiblePar(u));
 
         // rendre public déjà public retourne false
@@ -30,7 +33,6 @@ public class ParagrapheTest {
         assertFalse(secret.isVisiblePar(u));
         assertTrue(pub.isVisiblePar(u));
 
-        // rendre secret public
         assertTrue(secret.rendrePublic(u));
         assertTrue(secret.isVisiblePar(u));
     }

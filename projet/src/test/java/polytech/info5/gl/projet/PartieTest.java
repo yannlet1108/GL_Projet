@@ -1,9 +1,15 @@
 package polytech.info5.gl.projet;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import polytech.info5.gl.projet.model.*;
-import java.util.Date;
+
+import polytech.info5.gl.projet.model.Aventure;
+import polytech.info5.gl.projet.model.Partie;
+import polytech.info5.gl.projet.model.Personnage;
+import polytech.info5.gl.projet.model.Univers;
+import polytech.info5.gl.projet.model.Utilisateur;
 
 public class PartieTest {
 
