@@ -1,15 +1,14 @@
 package polytech.info5.gl.projet.controller;
 
-import polytech.info5.gl.projet.model.Utilisateur;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.nio.charset.StandardCharsets;
 
-/** Contrôleur d'authentification simple (stub). */
+import polytech.info5.gl.projet.model.Utilisateur;
+
 public class AuthController {
     private Utilisateur utilisateurConnecte;
 
-    // stockage simple en mémoire des utilisateurs
     private final java.util.List<Utilisateur> users = new java.util.ArrayList<>();
     private int nextId = 1;
 
@@ -22,17 +21,14 @@ public class AuthController {
                 return u;
             }
         }
-        // si non trouvé, on retourne null (auth échouée)
         return null;
     }
 
     public void logout() { utilisateurConnecte = null; }
 
     public Utilisateur register(String nom, String email, String mdp) {
-        // validation minimale
         if (nom == null || nom.isBlank() || email == null || email.isBlank() || mdp == null) return null;
 
-        // empêcher doublon par email ou nom
         for (Utilisateur u : users) {
             if (email.equals(u.getEmail()) || nom.equals(u.getNom())) return null;
         }
@@ -47,7 +43,6 @@ public class AuthController {
 
     public void setUtilisateurConnecte(Utilisateur u) { this.utilisateurConnecte = u; }
 
-    // Helpers pour tests / inspection
     public java.util.List<Utilisateur> getAllUsers() { return new java.util.ArrayList<>(users); }
     public void clearUsers() { users.clear(); nextId = 1; }
 
@@ -59,17 +54,16 @@ public class AuthController {
         this.nextId = max + 1;
     }
 
-    private String hashPassword(String pwd) {
-        if (pwd == null) return null;
+    private String hashPassword(String mdp) {
+        if (mdp == null) return null;
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] digest = md.digest(pwd.getBytes(StandardCharsets.UTF_8));
+            byte[] digest = md.digest(mdp.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             for (byte b : digest) sb.append(String.format("%02x", b));
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
-            // fallback: return plain (should not happen)
-            return pwd;
+            return mdp;
         }
     }
 }

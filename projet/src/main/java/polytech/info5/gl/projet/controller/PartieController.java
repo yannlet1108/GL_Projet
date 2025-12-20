@@ -1,14 +1,13 @@
 package polytech.info5.gl.projet.controller;
 
-import polytech.info5.gl.projet.model.Partie;
-import polytech.info5.gl.projet.model.Utilisateur;
-import polytech.info5.gl.projet.model.Personnage;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Contrôleur minimal pour gérer les propositions de parties en mémoire. */
+import polytech.info5.gl.projet.model.Partie;
+import polytech.info5.gl.projet.model.Personnage;
+import polytech.info5.gl.projet.model.Utilisateur;
+
 public class PartieController {
 
     private final List<Partie> parties = new ArrayList<>();
@@ -55,10 +54,11 @@ public class PartieController {
         Optional<Partie> op = findById(idPartie);
         if (op.isEmpty() || personnage == null || demandeur == null) return false;
         Partie p = op.get();
+
         // only MJ can add participants
         if (p.getMJ() == null || p.getMJ().getId() != demandeur.getId()) return false;
-        // ensure the personnage's MJ is the demandeur
         if (personnage.getMJ() == null || personnage.getMJ().getId() != demandeur.getId()) return false;
+
         // if partie has no universe yet, adopt the personnage's universe
         if (p.getUnivers() == null && personnage.getUnivers() != null) p.setUnivers(personnage.getUnivers());
         if (p.isPersonnageAjoutable(personnage)) { p.ajouterPersonnage(personnage); return true; }
@@ -87,7 +87,7 @@ public class PartieController {
         Optional<Partie> op = findById(idPartie);
         if (op.isEmpty()) return false;
         Partie p = op.get();
-        // only MJ can delete if not terminated
+        // only MJ can delete and if not terminated
         if (p.isTerminee()) return false;
         if (p.getMJ() == null || p.getMJ().getId() != demandeur.getId()) return false;
         parties.remove(p);

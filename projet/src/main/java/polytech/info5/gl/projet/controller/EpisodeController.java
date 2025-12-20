@@ -1,12 +1,15 @@
 package polytech.info5.gl.projet.controller;
 
-import polytech.info5.gl.projet.model.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Contrôleur gérant la création et modification des épisodes. */
+import polytech.info5.gl.projet.model.Episode;
+import polytech.info5.gl.projet.model.Paragraphe;
+import polytech.info5.gl.projet.model.Personnage;
+import polytech.info5.gl.projet.model.StatutEpisode;
+import polytech.info5.gl.projet.model.Utilisateur;
+
 public class EpisodeController {
 
     private final PersonnageController pc;
@@ -33,7 +36,6 @@ public class EpisodeController {
     public boolean modifierEpisode(int idEp, String titre, String dateRelative, Utilisateur utilisateurConnecte) {
         Episode e = findEpisodeById(idEp);
         if (e == null || utilisateurConnecte == null) return false;
-        // find owner personnage
         Personnage owner = null;
         for (Personnage pers : pc.listerTous()) {
             for (Episode ep : pers.getBiographie().getEpisodes()) {
@@ -91,7 +93,6 @@ public class EpisodeController {
     public boolean validerEpisode(int idEp, Utilisateur utilisateurConnecte) {
         Episode e = findEpisodeById(idEp);
         if (e == null) return false;
-        // Détecte si l'utilisateur est MJ du personnage auquel appartient l'épisode
         Personnage owner = null;
         for (Personnage pers : pc.listerTous()) {
             for (Episode ep : pers.getBiographie().getEpisodes()) {
@@ -100,12 +101,10 @@ public class EpisodeController {
             if (owner != null) break;
         }
         if (owner == null || utilisateurConnecte == null) return false;
-        // validation par MJ
         if (owner.getMJ() != null && owner.getMJ().getId() == utilisateurConnecte.getId()) {
             e.validerParMJ(utilisateurConnecte);
             return true;
         }
-        // validation par le joueur (seul le joueur propriétaire peut valider en tant que joueur)
         if (owner.getJoueur() != null && owner.getJoueur().getId() == utilisateurConnecte.getId()) {
             e.validerParJoueur(utilisateurConnecte);
             return true;
