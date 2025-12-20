@@ -3,9 +3,12 @@
     {
       "id": 1,
       "nom": "michel",
-      "dateNaissance": "octobre",
-      "profession": "chomeur",
+      "dateNaissance": "maintenant",
+      "profession": "on est la",
       "joueurId": 1,
+      "MJ": {
+        "id": 2
+      },
       "episodes": [
         {
           "id": 0,
@@ -16,7 +19,30 @@
             {
               "id": 0,
               "ordre": 1,
-              "texte": "N\u0027a rien fait",
+              "texte": "Il etait une fois michel",
+              "publique": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "nom": "mario",
+      "dateNaissance": "1",
+      "profession": "plombier",
+      "joueurId": 2,
+      "episodes": [
+        {
+          "id": 0,
+          "titre": "Biographie initiale",
+          "dateRelative": "0",
+          "statut": "BROUILLON",
+          "paragraphes": [
+            {
+              "id": 0,
+              "ordre": 1,
+              "texte": "yahhhou",
               "publique": true
             }
           ]
@@ -29,8 +55,14 @@
     {
       "id": 1,
       "nom": "yohan",
-      "email": "yohan@yohan.com",
+      "email": "yohan",
       "passwordHash": "229346eb187dadfebc075961f299592f4fb2b8ae43102ac20111fb0cb13f3e5f"
+    },
+    {
+      "id": 2,
+      "nom": "mj",
+      "email": "mj",
+      "passwordHash": "a3f9e2bcd804ec65d1ea4fc63a74e7f02a08e63ffd0b803a8f250236f5602405"
     }
   ]
 }

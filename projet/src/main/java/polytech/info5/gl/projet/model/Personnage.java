@@ -15,6 +15,7 @@ public class Personnage {
     private Utilisateur joueur;
     private Utilisateur MJ;
     private Utilisateur mjEnAttente;
+    private boolean isValide = false;
     private Univers univers;
     private Biographie biographie = new Biographie();
 
@@ -59,6 +60,8 @@ public class Personnage {
     /** Indique si le personnage est dans une partie en cours (stub). */
     public boolean estDansPartieEnCours() { return false; }
 
+    public boolean isValide() { return isValide; }
+
     /** Change la profession du personnage. */
     public void changerProfession(String nouvelleProfession) { this.profession = nouvelleProfession; }
 
@@ -78,9 +81,21 @@ public class Personnage {
         return false;
     }
 
+    /** Valide le personnage lors d'une proposition initiale : si l'utilisateur correspond au MJ proposé, il accepte et le personnage est validé. */
+    public boolean validerParMJ(Utilisateur utilisateur) {
+        if (mjEnAttente != null && utilisateur != null && mjEnAttente.getId() == utilisateur.getId()) {
+            this.MJ = mjEnAttente;
+            this.mjEnAttente = null;
+            this.isValide = true;
+            return true;
+        }
+        return false;
+    }
+
     /** Refuse le changement de MJ si l'utilisateur correspond (stub). */
     public boolean refuserChangementMJ(Utilisateur utilisateur) {
-        if (mjEnAttente != null && utilisateur != null && MJ != null && MJ.getId() == utilisateur.getId()) {
+        if (mjEnAttente != null && utilisateur != null && mjEnAttente.getId() == utilisateur.getId()) {
+            // proposed MJ refuses the proposal
             this.mjEnAttente = null;
             return true;
         }

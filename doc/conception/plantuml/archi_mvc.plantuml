@@ -1,0 +1,26 @@
+@startuml
+
+
+class Controller {
++handleRequest()
++updateModel()
+}
+
+
+class Model {
++getData()
++setData()
+}
+
+
+class View {
++afficher()
+}
+
+
+Controller --> Model : manipule
+Controller --> View : sélectionne
+Model --> View : fournit données
+
+
+@enduml

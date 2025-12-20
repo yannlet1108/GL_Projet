@@ -25,6 +25,9 @@ public class EpisodeController {
         e.setId(nextEpisodeId++);
         e.setTitre(titre);
         e.setDateRelative(dateRelative);
+        // Le créateur (joueur) valide sa propre création et l'épisode passe en attente de validation MJ
+        e.validerParJoueur(utilisateurConnecte);
+        if (!e.isCompletementValide()) e.setStatut(StatutEpisode.EN_ATTENTE_VALIDATION);
         p.getBiographie().ajouterEpisode(e);
         return e;
     }
@@ -59,7 +62,20 @@ public class EpisodeController {
     public boolean validerEpisode(int idEp, Utilisateur utilisateurConnecte) {
         Episode e = findEpisodeById(idEp);
         if (e == null) return false;
-        // simple behavior: mark as validated by the player
+        // Détecte si l'utilisateur est MJ du personnage auquel appartient l'épisode
+        Personnage owner = null;
+        for (Personnage pers : pc.listerTous()) {
+            for (Episode ep : pers.getBiographie().getEpisodes()) {
+                if (ep.getId() == idEp) { owner = pers; break; }
+            }
+            if (owner != null) break;
+        }
+        if (owner != null && owner.getMJ() != null && utilisateurConnecte != null && owner.getMJ().getId() == utilisateurConnecte.getId()) {
+            // validation par MJ
+            e.validerParMJ(utilisateurConnecte);
+            return true;
+        }
+        // sinon validation par le joueur (owner)
         e.validerParJoueur(utilisateurConnecte);
         return true;
     }

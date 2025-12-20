@@ -132,7 +132,7 @@ package "Modèle" {
 
     Personnage "1" o-- "1" Biographie
     Personnage "1" --> "1" Utilisateur : propriétaire
-    Personnage "1" --> "1" Utilisateur : MJ
+    Personnage "0..1" --> "1" Utilisateur : MJ
     Personnage "1" --> "1" Univers
 
     Biographie "1" *-- "1..*" Episode
@@ -157,45 +157,54 @@ newpage
 package "Contrôleurs" {
 
     class PersonnageController {
-        + creerPersonnage(nom, dateNaissance, profession,bioInitiale, utilisateurConnecte : Utilisateur) : Personnage
-        + afficherPersonnage(idPers, utilisateurConnecte : Utilisateur) : void
-        + modifierProfession(idPers, nvProfession, utilisateurConnecte : Utilisateur) : boolean
-        + cederPersonnage(idPers, idNewJoueur, utilisateurConnecte : Utilisateur) : boolean
-        + demanderChangementMJ(idPers, idNewMJ, utilisateurConnecte : Utilisateur) : boolean
-        + accepterChangementMJ(idPers, utilisateurConnecte : Utilisateur) : boolean
-        + refuserChangementMJ(idPers, utilisateurConnecte : Utilisateur) : boolean
-        + listerPersonnages(utilisateurConnecte : Utilisateur) : void
+        + creerPersonnage(nom : String, dateNaissance : String, profession : String, bioInitiale : String, utilisateurConnecte : Utilisateur) : Personnage
+        + listerTous() : List<Personnage>
+        + listerParUtilisateur(u : Utilisateur) : List<Personnage>
+        + findById(id : int) : Personnage
+        + modifierProfession(idPers : int, nvProfession : String, utilisateurConnecte : Utilisateur) : boolean
+        + cederPersonnage(idPers : int, idNewJoueur : int, utilisateurConnecte : Utilisateur) : boolean
+        + demanderChangementMJ(idPers : int, idNewMJ : int, utilisateurConnecte : Utilisateur) : boolean
+        + accepterChangementMJ(idPers : int, utilisateurConnecte : Utilisateur) : boolean
+        + refuserChangementMJ(idPers : int, utilisateurConnecte : Utilisateur) : boolean
     }
 
     class BiographieController {
-        + afficherBiographie(idPers, utilisateurConnecte : Utilisateur) : void
-        + afficherEpisode(idEp, utilisateurConnecte : Utilisateur) : void
+        - episodeController : EpisodeController
+        - personnageController : PersonnageController             
     }
 
     class EpisodeController {
-        + creerEpisode(idPers, data, utilisateurConnecte : Utilisateur) : Episode
-        + modifierEpisode(idEp, data, utilisateurConnecte : Utilisateur) : boolean
-        + ajouterParagraphe(idEp, texte, estSecret, ordre, utilisateurConnecte : Utilisateur) : boolean
-        + supprimerParagraphe(idPar, utilisateurConnecte : Utilisateur) : boolean
-        + validerEpisode(idEp, utilisateurConnecte : Utilisateur) : boolean
-        + supprimerEpisode(idEp, utilisateurConnecte : Utilisateur) : boolean
-        + revelerParagraphe(idPar, utilisateurConnecte : Utilisateur) : boolean
+        - personnageController : PersonnageController
+        - authController : AuthController
+        --
+        + creerEpisode(idPers : int, titre : String, dateRelative : String, utilisateurConnecte : Utilisateur) : Episode
+        + modifierEpisode(idEp : int, titre : String, dateRelative : String, utilisateurConnecte : Utilisateur) : boolean
+        + ajouterParagraphe(idEp : int, texte : String, estSecret : boolean, ordre : int, utilisateurConnecte : Utilisateur) : boolean
+        + supprimerParagraphe(idPar : int, utilisateurConnecte : Utilisateur) : boolean
+        + validerEpisode(idEp : int, utilisateurConnecte : Utilisateur) : boolean
+        + supprimerEpisode(idEp : int, utilisateurConnecte : Utilisateur) : boolean
+        + revelerParagraphe(idPar : int, utilisateurConnecte : Utilisateur) : boolean
+        + findEpisodeById(idEp : int) : Episode
+        + findParagrapheById(idPar : int) : Paragraphe
     }
 
     class PartieController {
-        + creerPartie(data, utilisateurConnecte : Utilisateur) : Partie
-        + afficherPartie(idPartie, utilisateurConnecte : Utilisateur) : void
-        + listerParties(utilisateurConnecte : Utilisateur) : void
-        + ajouterParticipant(idPartie, idPers, utilisateurConnecte : Utilisateur) : boolean
-        + retirerParticipant(idPartie, idPers, utilisateurConnecte : Utilisateur) : boolean
-        + terminerPartie(idPartie, resume, utilisateurConnecte : Utilisateur) : boolean
-        + supprimerPartie(idPartie, utilisateurConnecte : Utilisateur) : boolean
+        - personnageController : PersonnageController
+        - authController : AuthController
+        --
+        + creerPartie(titre : String, situationInitiale : String, lieu : String, utilisateurConnecte : Utilisateur) : Partie
+        + listerPartiesEnCours() : List<Partie>
+        + listerParMJ(mj : Utilisateur) : List<Partie>
+        + ajouterParticipant(idPartie : int, personnage : Personnage, utilisateurConnecte : Utilisateur) : boolean
+        + retirerParticipant(idPartie : int, personnage : Personnage, utilisateurConnecte : Utilisateur) : boolean
+        + terminerPartie(idPartie : int, resume : String, utilisateurConnecte : Utilisateur) : boolean
+        + supprimerPartie(idPartie : int, utilisateurConnecte : Utilisateur) : boolean
     }
 
     class AuthController {
-        + login(email, mdp) : Utilisateur
+        + login(email : String, mdp : String) : Utilisateur
         + logout() : void
-        + register(nom, email, mdp) : Utilisateur
+        + register(nom : String, email : String, mdp : String) : Utilisateur
         + getUtilisateurConnecte() : Utilisateur
     }
 
@@ -213,11 +222,24 @@ newpage
 ' ======================================================
 
 package "Vues" {
-    class VuePersonnage
-    class VueBiographie
-    class VuePartie
-    class VueEpisode
-    class VueConnexion
+    class VuePersonnage{
+        - 
+        + afficherPersonnage(idPers, utilisateurConnecte : Utilisateur) : void
+        + listerPersonnages(utilisateurConnecte : Utilisateur) : void
+    }
+    class VueBiographie{
+        + afficherBiographie(idPers, utilisateurConnecte : Utilisateur) : void
+    }
+    class VuePartie{
+        + afficherPartie(idPartie, utilisateurConnecte : Utilisateur) : void
+        + listerParties(utilisateurConnecte : Utilisateur) : void
+    }
+    class VueEpisode{
+        + afficherEpisode(idEp, utilisateurConnecte : Utilisateur) : void
+    }
+    class VueConnexion{
+
+    }
 }
 
 @enduml

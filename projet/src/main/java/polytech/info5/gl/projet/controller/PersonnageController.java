@@ -37,6 +37,14 @@ public class PersonnageController {
         return p;
     }
 
+    /** Crée un personnage en proposant un MJ (id). Le MJ proposé est placé en attente de validation. */
+    public Personnage creerPersonnageAvecMJ(String nom, String dateNaissance, String profession, String bioInitiale, int idProposeMJ, Utilisateur utilisateurConnecte) {
+        Personnage p = creerPersonnage(nom, dateNaissance, profession, bioInitiale, utilisateurConnecte);
+        Utilisateur propo = new Utilisateur(idProposeMJ, null, null, null);
+        p.demanderChangementMJ(propo); // réutilise le champ mjEnAttente pour la proposition initiale
+        return p;
+    }
+
     /** Retourne la liste de tous les personnages stockés. */
     public List<Personnage> listerTous() { return new ArrayList<>(personnages); }
 
@@ -65,13 +73,7 @@ public class PersonnageController {
     }
 
     /** Affiche le personnage via la vue (stub) */
-    public void afficherPersonnage(int idPers, Utilisateur utilisateurConnecte) {
-        Optional<Personnage> p = findById(idPers);
-        p.ifPresent(personnage -> {
-            new polytech.info5.gl.projet.view.VuePersonnage().afficher(personnage);
-            new polytech.info5.gl.projet.view.VueBiographie().afficher(personnage.getBiographie());
-        });
-    }
+    // Affichage déplacé vers les vues (VuePersonnage / VueBiographie)
 
     /** Modifie la profession si autorisé. */
     public boolean modifierProfession(int idPers, String nvProfession, Utilisateur utilisateurConnecte) {
@@ -82,9 +84,38 @@ public class PersonnageController {
         }
         return false;
     }
+    public boolean cederPersonnage(int idPers, int idNewJoueur, Utilisateur utilisateurConnecte) {
+        Optional<Personnage> op = findById(idPers);
+        if (op.isEmpty() || utilisateurConnecte == null) return false;
+        Personnage p = op.get();
+        // only owner can cede
+        if (p.getJoueur() == null || p.getJoueur().getId() != utilisateurConnecte.getId()) return false;
+        Utilisateur nouveau = new Utilisateur(idNewJoueur, null, null, null);
+        return p.cederPersonnage(nouveau, utilisateurConnecte);
+    }
 
-    public boolean cederPersonnage(int idPers, int idNewJoueur, Utilisateur utilisateurConnecte) { return false; }
-    public boolean demanderChangementMJ(int idPers, int idNewMJ, Utilisateur utilisateurConnecte) { return false; }
-    public boolean accepterChangementMJ(int idPers, Utilisateur utilisateurConnecte) { return false; }
-    public boolean refuserChangementMJ(int idPers, Utilisateur utilisateurConnecte) { return false; }
+    public boolean demanderChangementMJ(int idPers, int idNewMJ, Utilisateur utilisateurConnecte) {
+        Optional<Personnage> op = findById(idPers);
+        if (op.isEmpty() || utilisateurConnecte == null) return false;
+        Personnage p = op.get();
+        // only owner can request MJ change
+        if (p.getJoueur() == null || p.getJoueur().getId() != utilisateurConnecte.getId()) return false;
+        Utilisateur nouveauMJ = new Utilisateur(idNewMJ, null, null, null);
+        p.demanderChangementMJ(nouveauMJ);
+        return true;
+    }
+
+    public boolean accepterChangementMJ(int idPers, Utilisateur utilisateurConnecte) {
+        Optional<Personnage> op = findById(idPers);
+        if (op.isEmpty() || utilisateurConnecte == null) return false;
+        Personnage p = op.get();
+        return p.accepterChangementMJ(utilisateurConnecte);
+    }
+
+    public boolean refuserChangementMJ(int idPers, Utilisateur utilisateurConnecte) {
+        Optional<Personnage> op = findById(idPers);
+        if (op.isEmpty() || utilisateurConnecte == null) return false;
+        Personnage p = op.get();
+        return p.refuserChangementMJ(utilisateurConnecte);
+    }
 }
