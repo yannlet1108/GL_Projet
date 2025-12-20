@@ -33,6 +33,9 @@ menu_principal -down-> profil_mj
 menu_principal -down-> se_deconnecter
 menu_principal -down-> quitter_menu
 
+
+newpage
+rectangle "Profil joueur" as profil_joueur
 rectangle "Personnages" as perso_menu
 rectangle "Lister mes personnages" as lister_mes_personnages
 rectangle "Créer personnage" as creer_personnage
@@ -73,6 +76,8 @@ consulter_opts -down-> demander_mj_from_view
 consulter_opts -down-> retour_vue_perso
 
 
+newpage 
+rectangle "Profil MJ" as profil_mj
 rectangle "Personnages" as mj_perso_menu
 rectangle "Personnages à valider" as perso_a_valider
 rectangle "Lister personnages" as lister_personnages_mj
