@@ -6,22 +6,32 @@
       "dateNaissance": "longtemps",
       "profession": "superhéros",
       "joueurId": 1,
+      "mjId": 2,
       "episodes": [
         {
           "id": 0,
           "titre": "Biographie initiale",
           "dateRelative": "0",
           "statut": "BROUILLON",
+          "isValideParMJ": false,
+          "isValideParJoueur": false,
           "paragraphes": [
             {
               "id": 0,
               "ordre": 1,
               "texte": "trop fort !",
               "publique": true
+            },
+            {
+              "id": 1,
+              "ordre": 1,
+              "texte": "Nouveau paragraphe",
+              "publique": true
             }
           ]
         }
-      ]
+      ],
+      "isValide": false
     },
     {
       "id": 2,
@@ -35,6 +45,8 @@
           "titre": "Biographie initiale",
           "dateRelative": "0",
           "statut": "BROUILLON",
+          "isValideParMJ": false,
+          "isValideParJoueur": false,
           "paragraphes": [
             {
               "id": 0,
@@ -44,10 +56,11 @@
             }
           ]
         }
-      ]
+      ],
+      "isValide": false
     }
   ],
-  "utilisateurConnecteId": 1,
+  "utilisateurConnecteId": 2,
   "utilisateurs": [
     {
       "id": 1,
@@ -61,5 +74,6 @@
       "email": "yohan",
       "passwordHash": "229346eb187dadfebc075961f299592f4fb2b8ae43102ac20111fb0cb13f3e5f"
     }
-  ]
+  ],
+  "universes": []
 }
