@@ -62,6 +62,8 @@ public class Personnage {
 
     public boolean isValide() { return isValide; }
 
+    public void setValide(boolean v) { this.isValide = v; }
+
     /** Change la profession du personnage. */
     public void changerProfession(String nouvelleProfession) { this.profession = nouvelleProfession; }
 

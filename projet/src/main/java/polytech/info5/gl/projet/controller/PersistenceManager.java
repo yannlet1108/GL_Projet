@@ -48,8 +48,9 @@ public class PersistenceManager {
 
     public static class PersonnageDTO {
         public int id; public String nom; public String dateNaissance; public String profession;
-        public Integer joueurId; public Integer mjId; public UtilisateurDTO MJ; public UniversDTO univers;
+        public Integer joueurId; public Integer mjId; public Integer mjEnAttenteId; public UtilisateurDTO MJ; public UniversDTO univers;
         public List<EpisodeDTO> episodes = new ArrayList<>();
+        public boolean isValide = false;
     }
 
     public static void saveState(File target, AuthController auth, PersonnageController pc) throws IOException {
@@ -72,6 +73,10 @@ public class PersistenceManager {
                 // store only MJ id to avoid duplicating full user objects
                 pd.mjId = p.getMJ().getId();
             }
+            if (p.getMjEnAttente() != null) {
+                pd.mjEnAttenteId = p.getMjEnAttente().getId();
+            }
+            pd.isValide = p.isValide();
             if (p.getUnivers() != null) {
                 UniversDTO udto = new UniversDTO(); udto.id = p.getUnivers().getId(); udto.nom = p.getUnivers().getNom(); udto.description = p.getUnivers().getDescription(); pd.univers = udto;
             }
@@ -151,6 +156,14 @@ public class PersistenceManager {
             } else if (pd.MJ != null) {
                 p.setMJ(new Utilisateur(pd.MJ.id, pd.MJ.nom, pd.MJ.email, pd.MJ.passwordHash));
             }
+            // restore mjEnAttente if present
+            if (pd.mjEnAttenteId != null && users != null) {
+                for (Utilisateur u : users) {
+                    if (u != null && u.getId() == pd.mjEnAttenteId) { p.setMjEnAttente(u); break; }
+                }
+            }
+            // restore validation status
+            p.setValide(pd.isValide);
             if (pd.univers != null) p.setUnivers(new Univers(pd.univers.id, pd.univers.nom, pd.univers.description));
             if (pd.episodes != null) {
                 for (EpisodeDTO ed : pd.episodes) {

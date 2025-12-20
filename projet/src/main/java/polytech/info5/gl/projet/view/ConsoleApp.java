@@ -330,7 +330,13 @@ public class ConsoleApp {
         if (list.isEmpty()) System.out.println("Aucun personnage trouvé pour " + u.getNom());
         else {
             System.out.println("Mes personnages:");
-            for (Personnage p : list) System.out.println("- id=" + p.getId() + " | " + p.getNom() + " (" + p.getProfession() + ")");
+            for (Personnage p : list) {
+                String statut;
+                if (p.getMjEnAttente() != null) statut = "Proposé";
+                else if (p.getMJ() == null) statut = "SansMJ";
+                else statut = "MJ=" + p.getMJ().getNom();
+                System.out.println("- id=" + p.getId() + " | " + p.getNom() + " (" + p.getProfession() + ") [" + statut + "]");
+            }
         }
     }
 
