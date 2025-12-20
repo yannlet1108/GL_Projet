@@ -295,6 +295,7 @@ public class ConsoleApp {
         System.out.print("Date de naissance (texte): "); String date = scanner.nextLine().trim();
         System.out.print("Profession: "); String prof = scanner.nextLine().trim();
         System.out.print("Biographie initiale (laisser vide si none): "); String bio = scanner.nextLine().trim();
+        System.out.print("Chemin vers le portrait (laisser vide si none): "); String portraitPath = scanner.nextLine().trim();
         java.util.List<Univers> universList = new java.util.ArrayList<>();
         for (Personnage pp : pc.listerTous()) if (pp.getUnivers() != null) {
             boolean found = false; for (Univers uu : universList) if (uu.getId() == pp.getUnivers().getId()) { found = true; break; }
@@ -356,6 +357,7 @@ public class ConsoleApp {
         Personnage p = pc.creerPersonnageAvecMJ(nom, date, prof, bio, chosenMjId, u);
         System.out.println("Proposition de MJ envoyée (MJ id=" + chosenMjId + ")");
         if (chosenUnivers != null) p.setUnivers(chosenUnivers);
+        if (portraitPath != null && !portraitPath.isBlank()) p.setPortraitPath(portraitPath);
         System.out.println("Personnage créé (id=" + p.getId() + ")");
     }
 
@@ -480,6 +482,20 @@ public class ConsoleApp {
                     System.out.print("Date relative: "); String dateRel = scanner.nextLine().trim();
                     Episode e = episodeCtrl.creerEpisode(p.getId(), titre, dateRel, u);
                     System.out.println(e == null ? "Échec création" : "Épisode créé (id=" + e.getId() + ")");
+                    if (e != null) {
+                        // propose to link to an existing generated aventure
+                        java.util.List<polytech.info5.gl.projet.model.Aventure> allA = new java.util.ArrayList<>();
+                        for (polytech.info5.gl.projet.model.Partie pp : partieCtrl.listerToutes()) if (pp.getAventureGeneree() != null) allA.add(pp.getAventureGeneree());
+                        if (!allA.isEmpty()) {
+                            System.out.print("Lier cet épisode à une aventure existante? (o/N): "); String rl = scanner.nextLine().trim();
+                            if (rl.equalsIgnoreCase("o")) {
+                                int idx = 1; for (polytech.info5.gl.projet.model.Aventure a : allA) { System.out.println(idx+") "+a.getTitre()+" - "+(a.getResume()!=null?a.getResume():"(sans résumé)")); idx++; }
+                                System.out.print("Numéro de l'aventure à lier: "); String sidx = scanner.nextLine().trim();
+                                try { int si = Integer.parseInt(sidx); if (si>=1 && si<=allA.size()) e.setAventure(allA.get(si-1)); }
+                                catch (Exception ignored) {}
+                            }
+                        }
+                    }
                 } else if (cmd.equals("4")) {
                     // Lister épisodes à valider
                     boolean any = false;
@@ -501,13 +517,32 @@ public class ConsoleApp {
                         System.out.println("Titre: " + (e.getTitre()!=null?e.getTitre():"(sans titre)"));
                         System.out.println("Date: " + e.getDateRelative());
                         System.out.println("Statut: " + e.getStatut());
-                        for (Paragraphe par : e.getParagraphes()) System.out.println((par.isPublique()?"[pub] ":"[sec] ") + par.getTexte());
+                        boolean viewerIsMJ = (p.getMJ()!=null && u!=null && p.getMJ().getId()==u.getId());
+                        boolean viewerIsOwner = (p.getJoueur()!=null && u!=null && p.getJoueur().getId()==u.getId());
+                        for (Paragraphe par : e.getParagraphes()) {
+                            if (par.isPublique() || viewerIsMJ || viewerIsOwner) System.out.println((par.isPublique()?"[pub] ":"[sec] ") + par.getTexte());
+                        }
                         // si utilisateur est MJ du personnage, proposer validation
-                        if (p.getMJ() != null && u != null && p.getMJ().getId() == u.getId()) {
+                        if (viewerIsMJ) {
                             System.out.print("Valider cet épisode? (o/N): "); String rep = scanner.nextLine().trim();
                             if (rep.equalsIgnoreCase("o")) {
                                 boolean ok = episodeCtrl.validerEpisode(ide, u);
                                 System.out.println(ok ? "Épisode validé" : "Échec validation");
+                            }
+                        }
+                        // option pour révéler un paragraphe secret (MJ ou propriétaire)
+                        if (viewerIsMJ || viewerIsOwner) {
+                            System.out.print("Souhaitez-vous révéler un paragraphe secret? (o/N): "); String r2 = scanner.nextLine().trim();
+                            if (r2.equalsIgnoreCase("o")) {
+                                System.out.print("Id du paragraphe à révéler: "); String sip = scanner.nextLine().trim();
+                                try {
+                                    int idp = Integer.parseInt(sip);
+                                    System.out.print("Confirmez-vous la révélation (irréversible)? (o/N): "); String conf = scanner.nextLine().trim();
+                                    if (conf.equalsIgnoreCase("o")) {
+                                        boolean okr = episodeCtrl.revelerParagraphe(idp, u);
+                                        System.out.println(okr?"Paragraphe révélé":"Échec révélation");
+                                    } else System.out.println("Opération annulée");
+                                } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
                             }
                         }
                     } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }

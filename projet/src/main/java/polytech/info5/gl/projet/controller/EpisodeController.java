@@ -32,7 +32,20 @@ public class EpisodeController {
 
     public boolean modifierEpisode(int idEp, String titre, String dateRelative, Utilisateur utilisateurConnecte) {
         Episode e = findEpisodeById(idEp);
-        if (e == null) return false;
+        if (e == null || utilisateurConnecte == null) return false;
+        // find owner personnage
+        Personnage owner = null;
+        for (Personnage pers : pc.listerTous()) {
+            for (Episode ep : pers.getBiographie().getEpisodes()) {
+                if (ep.getId() == idEp) { owner = pers; break; }
+            }
+            if (owner != null) break;
+        }
+        if (owner == null) return false;
+        boolean isOwner = owner.getJoueur()!=null && owner.getJoueur().getId()==utilisateurConnecte.getId();
+        boolean isMJ = owner.getMJ()!=null && owner.getMJ().getId()==utilisateurConnecte.getId();
+        if (!isOwner && !isMJ) return false;
+        if (e.getStatut() == StatutEpisode.VALIDE) return false;
         if (titre != null) e.setTitre(titre);
         if (dateRelative != null) e.setDateRelative(dateRelative);
         return true;
@@ -41,6 +54,17 @@ public class EpisodeController {
     public boolean ajouterParagraphe(int idEp, String texte, boolean estSecret, int ordre, Utilisateur utilisateurConnecte) {
         Episode e = findEpisodeById(idEp);
         if (e == null) return false;
+        // only allow owner or MJ of the personnage to add a paragraph and only if episode not VALIDE
+        Personnage owner = null;
+        for (Personnage pers : pc.listerTous()) {
+            for (Episode ep : pers.getBiographie().getEpisodes()) if (ep.getId() == idEp) { owner = pers; break; }
+            if (owner != null) break;
+        }
+        if (owner == null || utilisateurConnecte == null) return false;
+        if (e.getStatut() == StatutEpisode.VALIDE) return false;
+        boolean isOwner = owner.getJoueur() != null && owner.getJoueur().getId() == utilisateurConnecte.getId();
+        boolean isMJ = owner.getMJ() != null && owner.getMJ().getId() == utilisateurConnecte.getId();
+        if (!isOwner && !isMJ) return false;
         Paragraphe p = new Paragraphe(nextParagrapheId++, ordre, texte, !estSecret);
         e.ajouterParagraphe(p);
         return true;
@@ -50,7 +74,14 @@ public class EpisodeController {
         for (Personnage pers : pc.listerTous()) {
             for (Episode e : pers.getBiographie().getEpisodes()) {
                 for (Paragraphe par : new ArrayList<>(e.getParagraphes())) {
-                    if (par.getId() == idPar) { e.retirerParagraphe(par); return true; }
+                    if (par.getId() == idPar) {
+                        // only owner or MJ can delete a paragraph and only if episode not VALIDE
+                        if (e.getStatut() == StatutEpisode.VALIDE) return false;
+                        if (pers.getJoueur() != null && utilisateurConnecte != null && (pers.getJoueur().getId() == utilisateurConnecte.getId() || (pers.getMJ()!=null && pers.getMJ().getId()==utilisateurConnecte.getId()))) {
+                            e.retirerParagraphe(par); return true;
+                        }
+                        return false;
+                    }
                 }
             }
         }
@@ -85,7 +116,15 @@ public class EpisodeController {
     public boolean supprimerEpisode(int idEp, Utilisateur utilisateurConnecte) {
         for (Personnage pers : pc.listerTous()) {
             for (Episode e : new ArrayList<>(pers.getBiographie().getEpisodes())) {
-                if (e.getId() == idEp) { pers.getBiographie().getEpisodes().remove(e); return true; }
+                if (e.getId() == idEp) {
+                    // only owner or MJ can delete and only if not VALIDE
+                    if (utilisateurConnecte == null) return false;
+                    boolean isOwner = pers.getJoueur()!=null && pers.getJoueur().getId()==utilisateurConnecte.getId();
+                    boolean isMJ = pers.getMJ()!=null && pers.getMJ().getId()==utilisateurConnecte.getId();
+                    if (!isOwner && !isMJ) return false;
+                    if (e.getStatut() == StatutEpisode.VALIDE) return false;
+                    pers.getBiographie().getEpisodes().remove(e); return true;
+                }
             }
         }
         return false;
@@ -95,7 +134,15 @@ public class EpisodeController {
         for (Personnage pers : pc.listerTous()) {
             for (Episode e : pers.getBiographie().getEpisodes()) {
                 for (Paragraphe par : e.getParagraphes()) {
-                    if (par.getId() == idPar) { par.setPublique(true); return true; }
+                    if (par.getId() == idPar) {
+                        // only owner or MJ can reveal
+                        if (utilisateurConnecte == null) return false;
+                        boolean isOwner = pers.getJoueur()!=null && pers.getJoueur().getId()==utilisateurConnecte.getId();
+                        boolean isMJ = pers.getMJ()!=null && pers.getMJ().getId()==utilisateurConnecte.getId();
+                        if (!isOwner && !isMJ) return false;
+                        par.setPublique(true);
+                        return true;
+                    }
                 }
             }
         }

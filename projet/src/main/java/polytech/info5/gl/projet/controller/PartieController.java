@@ -57,6 +57,10 @@ public class PartieController {
         Partie p = op.get();
         // only MJ can add participants
         if (p.getMJ() == null || p.getMJ().getId() != demandeur.getId()) return false;
+        // ensure the personnage's MJ is the demandeur
+        if (personnage.getMJ() == null || personnage.getMJ().getId() != demandeur.getId()) return false;
+        // if partie has no universe yet, adopt the personnage's universe
+        if (p.getUnivers() == null && personnage.getUnivers() != null) p.setUnivers(personnage.getUnivers());
         if (p.isPersonnageAjoutable(personnage)) { p.ajouterPersonnage(personnage); return true; }
         return false;
     }

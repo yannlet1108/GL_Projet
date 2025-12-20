@@ -11,6 +11,7 @@ public class Personnage {
     private String dateNaissance;
     private String profession;
     private Image portrait;
+    private String portraitPath;
 
     private Utilisateur joueur;
     private Utilisateur MJ;
@@ -32,6 +33,8 @@ public class Personnage {
     public void setProfession(String profession) { this.profession = profession; }
     public Image getPortrait() { return portrait; }
     public void setPortrait(Image portrait) { this.portrait = portrait; }
+    public String getPortraitPath() { return portraitPath; }
+    public void setPortraitPath(String portraitPath) { this.portraitPath = portraitPath; }
     public Utilisateur getJoueur() { return joueur; }
     public void setJoueur(Utilisateur joueur) { this.joueur = joueur; }
     public Utilisateur getMJ() { return MJ; }

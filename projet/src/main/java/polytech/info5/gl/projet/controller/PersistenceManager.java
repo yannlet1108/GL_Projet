@@ -52,6 +52,7 @@ public class PersistenceManager {
         public int id; public String nom; public String dateNaissance; public String profession;
         public Integer joueurId; public Integer mjId; public Integer mjEnAttenteId; public UtilisateurDTO MJ; public UniversDTO univers;
         public Integer universId;
+        public String portraitPath;
         public List<EpisodeDTO> episodes = new ArrayList<>();
         public boolean isValide = false;
     }
@@ -84,6 +85,7 @@ public class PersistenceManager {
                 // store only the universe id reference on the personnage DTO; univers full objects are saved at top-level
                 pd.universId = p.getUnivers().getId();
             }
+            if (p.getPortraitPath() != null) pd.portraitPath = p.getPortraitPath();
             if (p.getBiographie() != null) {
                 for (Episode e : p.getBiographie().getEpisodes()) {
                     EpisodeDTO ed = new EpisodeDTO(); ed.id = e.getId(); ed.titre = e.getTitre(); ed.dateRelative = e.getDateRelative(); ed.statut = e.getStatut() != null ? e.getStatut().name() : null;
@@ -200,6 +202,8 @@ public class PersistenceManager {
                 // fallback to legacy nested univers
                 if (pd.univers != null) p.setUnivers(new Univers(pd.univers.id, pd.univers.nom, pd.univers.description));
             } catch (Exception ignored) {}
+            // restore portrait path if present
+            try { if (pd.portraitPath != null) p.setPortraitPath(pd.portraitPath); } catch (Exception ignored) {}
             if (pd.episodes != null) {
                 for (EpisodeDTO ed : pd.episodes) {
                     Episode e = new Episode(); e.setId(ed.id); e.setTitre(ed.titre); e.setDateRelative(ed.dateRelative);

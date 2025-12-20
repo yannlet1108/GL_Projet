@@ -2,6 +2,7 @@ package polytech.info5.gl.projet.controller;
 
 import polytech.info5.gl.projet.model.Personnage;
 import polytech.info5.gl.projet.model.Utilisateur;
+import polytech.info5.gl.projet.model.StatutEpisode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,6 +32,10 @@ public class PersonnageController {
             par.setTexte(bioInitiale);
             par.setPublique(true);
             e.ajouterParagraphe(par);
+            // marquer l'épisode comme validé par le joueur créateur
+            e.validerParJoueur(utilisateurConnecte);
+            // mais en attente de validation par le MJ
+            e.setStatut(StatutEpisode.EN_ATTENTE_VALIDATION);
             p.getBiographie().ajouterEpisode(e);
         }
         personnages.add(p);
