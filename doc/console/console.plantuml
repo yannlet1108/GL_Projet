@@ -1,0 +1,118 @@
+@startuml console
+
+rectangle "Lancement de l'application" as Console
+rectangle "Créer un compte" as creer_compte
+rectangle "Se connecter" as se_connecter
+rectangle "Quitter" as quitter
+
+Console -down-> creer_compte
+Console -down-> se_connecter
+Console -down-> quitter
+
+creer_compte -down-> Nom
+creer_compte -down-> Email
+interface "Mot de passe" as Mot_de_passe
+creer_compte -down-> Mot_de_passe
+
+interface "Email" as EmailConnect
+interface "Mot de passe" as Mot_de_passeConnect
+se_connecter -down-> EmailConnect
+se_connecter -down-> Mot_de_passeConnect
+
+
+newpage
+
+rectangle "Menu principal" as menu_principal
+rectangle "Profil joueur" as profil_joueur
+rectangle "Profil MJ" as profil_mj
+rectangle "Se déconnecter" as se_deconnecter
+rectangle "Quitter" as quitter_menu
+
+menu_principal -down-> profil_joueur
+menu_principal -down-> profil_mj
+menu_principal -down-> se_deconnecter
+menu_principal -down-> quitter_menu
+
+rectangle "Personnages" as perso_menu
+rectangle "Lister mes personnages" as lister_mes_personnages
+rectangle "Créer personnage" as creer_personnage
+rectangle "Consulter un personnage" as consulter_personnage
+rectangle "Transférer un personnage" as transferer_personnage
+rectangle "Demander changement de MJ" as demander_changement_mj
+rectangle "Retour" as retour_personnage
+rectangle "Retour" as retour_joueur
+
+profil_joueur -down-> perso_menu
+profil_joueur -down-> retour_joueur
+perso_menu -down-> lister_mes_personnages
+perso_menu -down-> creer_personnage
+perso_menu -down-> consulter_personnage
+perso_menu -down-> transferer_personnage
+perso_menu -down-> demander_changement_mj
+perso_menu -down-> retour_personnage
+
+
+rectangle "Gestion personnage" as consulter_opts
+rectangle "Épisodes validés" as episodes_valides
+rectangle "Modifier épisode brouillon" as modifier_brouillon
+rectangle "Créer nouvel épisode" as creer_episode
+rectangle "Lister épisodes à valider" as lister_eps_valider
+rectangle "Consulter épisode à valider" as consulter_ep_valider
+rectangle "Transférer personnage" as transferer_from_view
+rectangle "Demander changement MJ" as demander_mj_from_view
+rectangle "Retour" as retour_vue_perso
+
+consulter_personnage -down-> consulter_opts
+consulter_opts -down-> episodes_valides
+consulter_opts -down-> modifier_brouillon
+consulter_opts -down-> creer_episode
+consulter_opts -down-> lister_eps_valider
+consulter_opts -down-> consulter_ep_valider
+consulter_opts -down-> transferer_from_view
+consulter_opts -down-> demander_mj_from_view
+consulter_opts -down-> retour_vue_perso
+
+
+rectangle "Personnages" as mj_perso_menu
+rectangle "Personnages à valider" as perso_a_valider
+rectangle "Lister personnages" as lister_personnages_mj
+rectangle "Consulter personnage" as consulter_personnage_mj
+rectangle "Retour" as retour_mj
+
+profil_mj -down-> mj_perso_menu
+mj_perso_menu -down-> perso_a_valider
+mj_perso_menu -down-> lister_personnages_mj
+mj_perso_menu -down-> consulter_personnage_mj
+mj_perso_menu -down-> retour_mj
+
+
+rectangle "Parties" as mj_partie_menu
+rectangle "Lister parties en cours" as lister_parties
+rectangle "Créer une partie" as creer_partie
+rectangle "Consulter une partie" as consulter_partie
+rectangle "Retour" as retour_parties
+
+profil_mj -down-> mj_partie_menu
+mj_partie_menu -down-> lister_parties
+mj_partie_menu -down-> creer_partie
+mj_partie_menu -down-> consulter_partie
+mj_partie_menu -down-> retour_parties
+
+
+rectangle "Gestion partie" as gestion_partie
+rectangle "Lister participants" as lister_participants
+rectangle "Ajouter participant" as ajouter_participant
+rectangle "Retirer participant" as retirer_participant
+rectangle "Terminer" as terminer_partie
+rectangle "Supprimer" as supprimer_partie
+rectangle "Retour" as retour_gestion
+
+consulter_partie -down-> gestion_partie
+gestion_partie -down-> lister_participants
+gestion_partie -down-> ajouter_participant
+gestion_partie -down-> retirer_participant
+gestion_partie -down-> terminer_partie
+gestion_partie -down-> supprimer_partie
+gestion_partie -down-> retour_gestion
+
+@enduml
