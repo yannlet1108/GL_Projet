@@ -5,13 +5,102 @@ skinparam actorStyle awesome
 actor Joueur as J
 actor "Maitre du jeu" as MJ
 
-boundary "EpisodeView"
-control "EpisodeController"
-entity Personnage
-entity Biographie
-entity Episode
-entity Utilisateur
+boundary "EpisodeView" as View
+control "PersonnageController" as PC
+control "EpisodeController" as EC
+control "PartieController" as PaC
+entity Personnage as P
+entity Biographie as B
+entity Episode as E
+entity Paragraphe as Par
+entity Utilisateur as U
+control "PersistenceManager" as PM
 
+== Création de personnage ==
+J -> View : createPersonnage(form)
+View -> PC : creerPersonnage(form, utilisateurConnecte)
+activate PC
+PC -> P : new Personnage(...)
+PC -> B : creerBiographieInitiale()
+B -> E : new Episode()
+E -> E : setStatut(EN_ATTENTE_VALIDATION)
+E -> E : validerParJoueur(utilisateurConnecte)
+PC -> P : ajouterBiographie(B)
+PC -> PM : saveState()
+deactivate PC
 
+newpage
+
+== Publication d'épisode par le MJ ==
+MJ -> View : creerEpisodeBrouillon(form)
+View -> EC : creerEpisode(idPersonnage, form, utilisateurConnecte)
+activate EC
+EC -> E : new Episode(...)
+E -> E : setStatut(EN_ATTENTE_VALIDATION)
+EC -> PM : saveState()
+deactivate EC
+
+View -> J : notifierSoumissionEpisode()
+J -> View : consulterEpisode(id)
+View -> EC : validerEpisode(idEpisode, utilisateurConnecte)  -- si joueur valide
+EC -> E : validerParJoueur(utilisateurConnecte)
+EC -> PM : saveState()
+
+note over EC,E: Publication finale lorsque
+note over EC,E: les deux validations sont présentes
+
+newpage
+
+== Publication d'épisode par le Joueur ==
+J -> View : creerEpisodeBrouillon(form)
+View -> EC : creerEpisode(idPersonnage, form, utilisateurConnecte)
+activate EC
+EC -> E : new Episode(...)
+E -> E : setStatut(EN_ATTENTE_VALIDATION)
+EC -> PM : saveState()
+deactivate EC
+
+View -> MJ : notifierSoumissionEpisode()
+MJ -> View : consulterEpisode(id)
+MJ -> View : validerEpisode(idEpisode)
+View -> EC : validerEpisode(idEpisode, utilisateurConnecte)
+EC -> E : validerParMJ(utilisateurConnecte)
+EC -> PM : saveState()
+
+newpage
+
+== Révélation d'un paragraphe secret ==
+J -> View : demanderRevelation(idParagraphe)
+View -> EC : revelerParagraphe(idParagraphe, utilisateurConnecte)
+activate EC
+EC -> Par : setPublique(true)  -- accès restreint (propriétaire ou MJ)
+EC -> PM : saveState()
+deactivate EC
+
+newpage
+
+== Transfert de MJ ==
+J -> View : demanderTransfertMJ(idPers, newMJId)
+View -> PC : demanderTransfert(idPers, newMJId)
+activate PC
+PC -> U : notifierMJ(newMJId)
+deactivate PC
+
+MJ -> View : accepterTransfert(idPers)
+View -> PC : validerTransfert(idPers, newMJId)
+activate PC
+PC -> P : setMJ(newMJ)
+PC -> PM : saveState()
+deactivate PC
+
+newpage
+
+== Création de partie ==
+MJ -> View : proposerPartie(form)
+View -> PaC : creerPartie(form, utilisateurConnecte)
+activate PaC
+PaC -> PaC : setUnivers(if null -> adopterUniversDuPersonnage())
+PaC -> PM : saveState()
+deactivate PaC
 
 @enduml
