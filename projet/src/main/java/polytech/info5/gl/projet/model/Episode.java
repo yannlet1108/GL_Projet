@@ -3,7 +3,6 @@ package polytech.info5.gl.projet.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Représente un épisode de la biographie d'un personnage. */
 public class Episode {
     private int id;
     private String titre;
@@ -16,7 +15,6 @@ public class Episode {
 
     public Episode() {}
 
-    // Getters / setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getTitre() { return titre; }
@@ -31,34 +29,27 @@ public class Episode {
     public StatutEpisode getStatut() { return statut; }
     public void setStatut(StatutEpisode statut) { this.statut = statut; }
 
-    /** Vérifie si l'utilisateur peut modifier cet épisode (stub). */
+    // Il manque un lien vers la biographie / personnage pour le moment
     public boolean isModifiablePar(Utilisateur utilisateur) {
-        // Dans une vraie app vérifier rôles et ownership
         return statut != StatutEpisode.VALIDE;
     }
 
-    /** Valide l'épisode par le joueur. */
     public boolean validerParJoueur(Utilisateur utilisateur) {
         this.isValideParJoueur = true;
         if (isCompletementValide()) statut = StatutEpisode.VALIDE;
         return true;
     }
 
-    /** Valide l'épisode par le MJ. */
     public boolean validerParMJ(Utilisateur utilisateur) {
         this.isValideParMJ = true;
         if (isCompletementValide()) statut = StatutEpisode.VALIDE;
         return true;
     }
 
-    /** Retourne true si validé à la fois par MJ et joueur. */
     public boolean isCompletementValide() {
         return isValideParMJ && isValideParJoueur;
     }
 
-    /** Ajoute un paragraphe à l'épisode. */
     public void ajouterParagraphe(Paragraphe p) { paragraphes.add(p); }
-
-    /** Retire un paragraphe de l'épisode. */
     public void retirerParagraphe(Paragraphe p) { paragraphes.remove(p); }
 }

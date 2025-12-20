@@ -1,6 +1,5 @@
 package polytech.info5.gl.projet.model;
 
-/** Représente un utilisateur du système. */
 public class Utilisateur {
     private int id;
     private String nom;
@@ -16,7 +15,6 @@ public class Utilisateur {
         this.passwordHash = passwordHash;
     }
 
-    // Getters / Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getNom() { return nom; }
@@ -26,9 +24,7 @@ public class Utilisateur {
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
-    /** Vérifie si le mot de passe fourni correspond (stub). */
     public boolean connecter(String mdp) {
-        // Vérification simplifiée : comparer hash stocké à mdp (dans une vraie app, hasher)
         return passwordHash != null && passwordHash.equals(mdp);
     }
 }

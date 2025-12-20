@@ -1,6 +1,5 @@
 package polytech.info5.gl.projet.model;
 
-/** Paragraphe d'un épisode, peut être public ou secret. */
 public class Paragraphe {
     private int id;
     private int ordre;
@@ -25,18 +24,12 @@ public class Paragraphe {
     public boolean isPublique() { return isPublique; }
     public void setPublique(boolean publique) { isPublique = publique; }
 
-    /** Indique si le paragraphe est public. */
-    public boolean isPubliqueVisible() { return isPublique; }
-
-    /** Vérifie si le paragraphe est visible par l'utilisateur (stub).
-     *  Dans la vraie application, on vérifierait droits du joueur/MJ. */
+    // Il manque un lien vers l'épisode / personnage pour le moment
     public boolean isVisiblePar(Utilisateur utilisateur) {
         return isPublique;
     }
 
-    /** Rend le paragraphe public si l'utilisateur est autorisé (stub). */
     public boolean rendrePublic(Utilisateur utilisateur) {
-        // Demander confirmation et vérifier droits dans une vraie app
         if (!isPublique) {
             isPublique = true;
             return true;

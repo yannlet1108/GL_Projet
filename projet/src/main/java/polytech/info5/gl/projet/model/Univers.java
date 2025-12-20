@@ -1,6 +1,5 @@
 package polytech.info5.gl.projet.model;
 
-/** Représente un univers de jeu. */
 public class Univers {
     private int id;
     private String nom;

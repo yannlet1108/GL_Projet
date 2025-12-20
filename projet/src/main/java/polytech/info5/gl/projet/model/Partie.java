@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/** Représente une proposition de partie / session de jeu. */
 public class Partie {
     private int id;
     private String titre;
@@ -38,7 +37,6 @@ public class Partie {
     public List<Personnage> getPersonnages() { return personnages; }
     public Aventure getAventureGeneree() { return aventureGeneree; }
 
-    /** Vérifie si un personnage est ajoutable (même univers et MJ présent). */
     public boolean isPersonnageAjoutable(Personnage personnage) {
         return personnage != null && univers != null && personnage.getUnivers() != null && univers.getNom().equals(personnage.getUnivers().getNom());
     }
@@ -46,7 +44,6 @@ public class Partie {
     public void ajouterPersonnage(Personnage p) { if (!personnages.contains(p)) personnages.add(p); }
     public void retirerPersonnage(Personnage p) { personnages.remove(p); }
 
-    /** Termine la partie et génère une aventure associée au résumé fourni. */
     public Aventure terminerPartie(String resume) {
         this.terminee = true;
         Aventure a = new Aventure();
@@ -60,7 +57,6 @@ public class Partie {
     public boolean isModifiable() { return !terminee; }
 
     public void supprimerProposition() {
-        // ici on pourrait nettoyer les ressources associées
         personnages.clear();
     }
 }

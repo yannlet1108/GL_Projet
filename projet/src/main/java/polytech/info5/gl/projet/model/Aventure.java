@@ -3,7 +3,6 @@ package polytech.info5.gl.projet.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Représente une aventure, qui peut regrouper plusieurs personnages. */
 public class Aventure {
     private int id;
     private String titre;
