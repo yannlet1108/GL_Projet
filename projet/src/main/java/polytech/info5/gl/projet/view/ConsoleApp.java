@@ -114,39 +114,13 @@ public class ConsoleApp {
 
     private void playerPersonnageMenu(Utilisateur u) {
         while (true) {
-            System.out.println("\nPersonnages - options:\n1) Lister mes personnages\n2) Créer personnage\n3) Consulter un personnage\n4) Transférer un personnage\n5) Changer de MJ\n6) Retour");
+            System.out.println("\nPersonnages - options:\n1) Lister mes personnages\n2) Créer personnage\n3) Consulter un personnage\n4) Retour");
             String cmd = scanner.nextLine().trim();
             switch (cmd) {
                 case "1": doListPersonnages(u); break;
                 case "2": doCreatePersonnage(u); break;
                 case "3": doVoirPersonnage(u); break;
-                case "4": {
-                    System.out.print("Id du personnage à transférer: ");
-                    String sid = scanner.nextLine().trim();
-                    try {
-                        int idp = Integer.parseInt(sid);
-                        System.out.print("Id du nouveau joueur: ");
-                        String sn = scanner.nextLine().trim();
-                        int idnew = Integer.parseInt(sn);
-                        boolean ok = pc.cederPersonnage(idp, idnew, u);
-                        System.out.println(ok ? "Transfert effectué" : "Échec du transfert");
-                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
-                    break;
-                }
-                case "5": {
-                    System.out.print("Id du personnage pour changement de MJ: ");
-                    String sid2 = scanner.nextLine().trim();
-                    try {
-                        int idp = Integer.parseInt(sid2);
-                        System.out.print("Id du MJ souhaité: ");
-                        String sm = scanner.nextLine().trim();
-                        int idmj = Integer.parseInt(sm);
-                        boolean ok = pc.demanderChangementMJ(idp, idmj, u);
-                        System.out.println(ok ? "Demande envoyée" : "Échec de la demande");
-                    } catch (NumberFormatException ex) { System.out.println("Identifiant invalide"); }
-                    break;
-                }
-                case "6": return;
+                case "4": return;
                 default: System.out.println("Commande inconnue");
             }
         }

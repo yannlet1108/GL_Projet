@@ -40,8 +40,7 @@ rectangle "Personnages" as perso_menu
 rectangle "Lister mes personnages" as lister_mes_personnages
 rectangle "Créer personnage" as creer_personnage
 rectangle "Consulter un personnage" as consulter_personnage
-rectangle "Transférer un personnage" as transferer_personnage
-rectangle "Demander changement de MJ" as demander_changement_mj
+
 rectangle "Retour" as retour_personnage
 rectangle "Retour" as retour_joueur
 
@@ -50,8 +49,6 @@ profil_joueur -down-> retour_joueur
 perso_menu -down-> lister_mes_personnages
 perso_menu -down-> creer_personnage
 perso_menu -down-> consulter_personnage
-perso_menu -down-> transferer_personnage
-perso_menu -down-> demander_changement_mj
 perso_menu -down-> retour_personnage
 
 
