@@ -31,6 +31,7 @@ public class PersistenceManager {
         public List<PersonnageDTO> personnages = new ArrayList<>();
         public Integer utilisateurConnecteId;
         public List<UtilisateurDTO> utilisateurs = new ArrayList<>();
+        public List<UniversDTO> universes = new ArrayList<>();
     }
 
     public static class UtilisateurDTO {
@@ -50,6 +51,7 @@ public class PersistenceManager {
     public static class PersonnageDTO {
         public int id; public String nom; public String dateNaissance; public String profession;
         public Integer joueurId; public Integer mjId; public Integer mjEnAttenteId; public UtilisateurDTO MJ; public UniversDTO univers;
+        public Integer universId;
         public List<EpisodeDTO> episodes = new ArrayList<>();
         public boolean isValide = false;
     }
@@ -79,7 +81,8 @@ public class PersistenceManager {
             }
             pd.isValide = p.isValide();
             if (p.getUnivers() != null) {
-                UniversDTO udto = new UniversDTO(); udto.id = p.getUnivers().getId(); udto.nom = p.getUnivers().getNom(); udto.description = p.getUnivers().getDescription(); pd.univers = udto;
+                // store only the universe id reference on the personnage DTO; univers full objects are saved at top-level
+                pd.universId = p.getUnivers().getId();
             }
             if (p.getBiographie() != null) {
                 for (Episode e : p.getBiographie().getEpisodes()) {
@@ -113,6 +116,19 @@ public class PersistenceManager {
         File dir = target.getParentFile();
         if (dir != null && !dir.exists()) dir.mkdirs();
 
+        // save known universes (unique)
+        java.util.Map<Integer, UniversDTO> uniMap = new java.util.HashMap<>();
+        for (Personnage p : pc.listerTous()) {
+            if (p.getUnivers() != null) {
+                int id = p.getUnivers().getId();
+                if (!uniMap.containsKey(id)) {
+                    UniversDTO udto = new UniversDTO(); udto.id = p.getUnivers().getId(); udto.nom = p.getUnivers().getNom(); udto.description = p.getUnivers().getDescription();
+                    uniMap.put(id, udto);
+                }
+            }
+        }
+        if (!uniMap.isEmpty()) st.universes.addAll(uniMap.values());
+
         try (Writer w = new FileWriter(target)) {
             gson.toJson(st, w);
         }
@@ -139,7 +155,7 @@ public class PersistenceManager {
     }
 
     // reconstruction helper: convert DTOs to model objects
-    public static List<Personnage> toPersonnages(List<PersonnageDTO> dtos, List<Utilisateur> users) {
+    public static List<Personnage> toPersonnages(List<PersonnageDTO> dtos, List<Utilisateur> users, List<UniversDTO> universes) {
         List<Personnage> res = new ArrayList<>();
         if (dtos == null) return res;
         for (PersonnageDTO pd : dtos) {
@@ -167,7 +183,23 @@ public class PersistenceManager {
             }
             // restore validation status
             p.setValide(pd.isValide);
-            if (pd.univers != null) p.setUnivers(new Univers(pd.univers.id, pd.univers.nom, pd.univers.description));
+            // restore univers by id reference if available in DTO (backwards compatible if nested univers was present)
+            try {
+                java.lang.reflect.Field fid = PersonnageDTO.class.getDeclaredField("universId");
+                fid.setAccessible(true);
+                Object val = fid.get(pd);
+                if (val instanceof Integer) {
+                    Integer uid = (Integer) val;
+                    if (uid != null && universes != null) {
+                        for (UniversDTO ud : universes) {
+                            if (ud != null && ud.id == uid) { p.setUnivers(new Univers(ud.id, ud.nom, ud.description)); break; }
+                        }
+                    }
+                }
+            } catch (NoSuchFieldException nsf) {
+                // fallback to legacy nested univers
+                if (pd.univers != null) p.setUnivers(new Univers(pd.univers.id, pd.univers.nom, pd.univers.description));
+            } catch (Exception ignored) {}
             if (pd.episodes != null) {
                 for (EpisodeDTO ed : pd.episodes) {
                     Episode e = new Episode(); e.setId(ed.id); e.setTitre(ed.titre); e.setDateRelative(ed.dateRelative);

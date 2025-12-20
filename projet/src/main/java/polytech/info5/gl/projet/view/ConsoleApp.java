@@ -13,6 +13,7 @@ import polytech.info5.gl.projet.model.Episode;
 import polytech.info5.gl.projet.model.Paragraphe;
 import polytech.info5.gl.projet.model.Partie;
 import polytech.info5.gl.projet.model.Personnage;
+import polytech.info5.gl.projet.model.Univers;
 import polytech.info5.gl.projet.model.Utilisateur;
 
 /** Console interactive simple pour naviguer dans l'application. (déplacée dans view) */
@@ -47,7 +48,7 @@ public class ConsoleApp {
                 } catch (Exception ex) { /* ignore */ }
 
                 // restore personnages using users map for owner lookup
-                pc.chargerPersonnages(polytech.info5.gl.projet.persistence.PersistenceManager.toPersonnages(st.personnages, users));
+                pc.chargerPersonnages(polytech.info5.gl.projet.persistence.PersistenceManager.toPersonnages(st.personnages, users, st.universes));
 
                 // restore utilisateur connecté by id
                 if (st.utilisateurConnecteId != null) {
@@ -147,7 +148,7 @@ public class ConsoleApp {
                     // lister personnages avec MJ en attente
                     List<Personnage> all = pc.listerTous();
                     List<Personnage> pending = new java.util.ArrayList<>();
-                    for (Personnage p : all) if (p.getMjEnAttente() != null) pending.add(p);
+                    for (Personnage p : all) if (p.getMjEnAttente() != null && u != null && p.getMjEnAttente().getId() == u.getId()) pending.add(p);
                     if (!pending.isEmpty()) {
                         System.out.println("Demandes de MJ en attente:");
                         for (Personnage p : pending) System.out.println("- id=" + p.getId() + " | " + p.getNom() + " | MJ actuel=" + (p.getMJ()!=null? p.getMJ().getNom():"(aucun)") + " | nouveauMJId=" + p.getMjEnAttente().getId());
@@ -294,37 +295,67 @@ public class ConsoleApp {
         System.out.print("Date de naissance (texte): "); String date = scanner.nextLine().trim();
         System.out.print("Profession: "); String prof = scanner.nextLine().trim();
         System.out.print("Biographie initiale (laisser vide si none): "); String bio = scanner.nextLine().trim();
-        // Allow interactive selection of a proposed MJ: user can type 'l' to list users
-        System.out.print("Id du MJ proposé (laisser vide si aucun, 'l' pour lister utilisateurs): ");
-        String smj = scanner.nextLine().trim();
-        // if user asked to list, show users and re-prompt until blank or numeric id
-        while (smj != null && smj.equalsIgnoreCase("l")) {
-            java.util.List<Utilisateur> users = auth.getAllUsers();
-            if (users.isEmpty()) {
-                System.out.println("Aucun utilisateur enregistré.");
-            } else {
-                System.out.println("Utilisateurs disponibles :");
-                for (Utilisateur uu : users) {
-                    System.out.println("- id=" + uu.getId() + " | " + uu.getNom() + " | " + uu.getEmail());
+        java.util.List<Univers> universList = new java.util.ArrayList<>();
+        for (Personnage pp : pc.listerTous()) if (pp.getUnivers() != null) {
+            boolean found = false; for (Univers uu : universList) if (uu.getId() == pp.getUnivers().getId()) { found = true; break; }
+            if (!found) universList.add(pp.getUnivers());
+        }
+        Univers chosenUnivers = null;
+        if (!universList.isEmpty()) {
+            while (chosenUnivers == null) {
+                System.out.println("Univers existants :");
+                int idx = 1;
+                for (Univers uu : universList) { System.out.println(idx + ") " + uu.getNom() + " - " + (uu.getDescription()!=null?uu.getDescription():"(sans description)")); idx++; }
+                System.out.print("Choisir un univers par numéro, ou 'n' pour créer un nouvel univers (obligatoire): ");
+                String suni = scanner.nextLine().trim();
+                if (suni.equalsIgnoreCase("n")) {
+                    System.out.print("Nom de l'univers: "); String nun = scanner.nextLine().trim();
+                    System.out.print("Description de l'univers: "); String dsc = scanner.nextLine().trim();
+                    int nextId = 1; for (Univers uu : universList) if (uu.getId() >= nextId) nextId = uu.getId() + 1;
+                    if (nun != null && !nun.isBlank()) chosenUnivers = new Univers(nextId, nun, dsc);
+                    else System.out.println("Le nom de l'univers ne peut pas être vide.");
+                } else {
+                    try {
+                        int sel = Integer.parseInt(suni);
+                        if (sel >= 1 && sel <= universList.size()) chosenUnivers = universList.get(sel-1);
+                        else System.out.println("Sélection invalide");
+                    } catch (NumberFormatException ex) { System.out.println("Entrée invalide"); }
                 }
             }
-            System.out.print("Id du MJ proposé (laisser vide si aucun, 'l' pour relister): ");
-            smj = scanner.nextLine().trim();
-        }
-
-        Personnage p;
-        if (smj == null || smj.isBlank()) {
-            p = pc.creerPersonnage(nom, date, prof, bio, u);
         } else {
-            try {
-                int idmj = Integer.parseInt(smj);
-                p = pc.creerPersonnageAvecMJ(nom, date, prof, bio, idmj, u);
-                System.out.println("Proposition de MJ envoyée (MJ id=" + idmj + ")");
-            } catch (NumberFormatException ex) {
-                System.out.println("Identifiant MJ invalide, création sans MJ proposé.");
-                p = pc.creerPersonnage(nom, date, prof, bio, u);
+            // aucun univers existant -> forcer la création
+            System.out.println("Aucun univers existant. Création d'un nouvel univers requise.");
+            while (chosenUnivers == null) {
+                System.out.print("Nom de l'univers: "); String nun = scanner.nextLine().trim();
+                if (nun == null || nun.isBlank()) { System.out.println("Le nom de l'univers ne peut pas être vide."); continue; }
+                System.out.print("Description de l'univers: "); String dsc = scanner.nextLine().trim();
+                chosenUnivers = new Univers(1, nun, dsc);
             }
         }
+        // Sélection interactive obligatoire d'un MJ proposé
+        java.util.List<Utilisateur> users = auth.getAllUsers();
+        if (users.isEmpty()) {
+            System.out.println("Aucun utilisateur enregistré: impossible d'assigner un MJ. Création annulée.");
+            return;
+        }
+        Integer chosenMjId = null;
+        while (chosenMjId == null) {
+            System.out.println("Utilisateurs disponibles :");
+            for (Utilisateur uu : users) System.out.println("- id=" + uu.getId() + " | " + uu.getNom() + " | " + uu.getEmail());
+            System.out.print("Id du MJ proposé: ");
+            String smj = scanner.nextLine().trim();
+            try {
+                int idmj = Integer.parseInt(smj);
+                boolean found = false;
+                for (Utilisateur uu : users) if (uu.getId() == idmj) { found = true; break; }
+                if (found) chosenMjId = idmj;
+                else System.out.println("Identifiant utilisateur introuvable.");
+            } catch (NumberFormatException ex) { System.out.println("Entrée invalide, saisir un identifiant numérique."); }
+        }
+
+        Personnage p = pc.creerPersonnageAvecMJ(nom, date, prof, bio, chosenMjId, u);
+        System.out.println("Proposition de MJ envoyée (MJ id=" + chosenMjId + ")");
+        if (chosenUnivers != null) p.setUnivers(chosenUnivers);
         System.out.println("Personnage créé (id=" + p.getId() + ")");
     }
 

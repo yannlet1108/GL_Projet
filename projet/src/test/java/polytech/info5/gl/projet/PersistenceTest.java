@@ -42,7 +42,7 @@ public class PersistenceTest {
         }
         if (!users.isEmpty()) auth2.chargerUtilisateurs(users);
 
-        List<Personnage> restored = PersistenceManager.toPersonnages(st.personnages, users);
+        List<Personnage> restored = PersistenceManager.toPersonnages(st.personnages, users, st.universes);
         pc2.chargerPersonnages(restored);
         // set connected user by id
         if (st.utilisateurConnecteId != null) {
