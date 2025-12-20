@@ -16,7 +16,7 @@ Projet de conception d'un logiciel de gestion de jeu de rôle (JDR) dans le cadr
 ### Installation :
 1. Extraire le code source de l'archive puis :
    ```bash
-    cd GL_Projet/projet
+    cd /projet
     ```
 2. Compiler le projet avec Maven (+execution des tests) :
     ```bash
@@ -24,12 +24,12 @@ Projet de conception d'un logiciel de gestion de jeu de rôle (JDR) dans le cadr
     ```
 
 ### Exécution :
-Pour exécuter l'application, utilisez la commande suivante :
+Pour exécuter l'application, utilisez la commande suivante dans le répertoire ```/projet``` :
 ```bash
 mvn -f pom.xml exec:java -Dexec.mainClass="polytech.info5.gl.projet.App"
 ```
 
-Pour exécuter les tests unitaires, utilisez la commande suivante :
+Pour exécuter les tests unitaires, utilisez la commande suivante dans le répertoire ```/projet``` :
 (l'option -q pour "quiet" réduit la verbosité de la sortie)
 ```bash
 mvn -f pom.xml test
